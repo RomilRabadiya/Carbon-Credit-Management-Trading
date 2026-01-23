@@ -1,0 +1,23 @@
+# Build stage
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /app
+
+# Copy the parent pom and all modules
+COPY pom.xml .
+COPY common-library ./common-library
+COPY discovery-server ./discovery-server
+COPY api-gateway ./api-gateway
+COPY user-identity-service ./user-identity-service
+COPY organization-service ./organization-service
+COPY emission-reporting-service ./emission-reporting-service
+COPY audit-ledger-service ./audit-ledger-service
+COPY trading-service ./trading-service
+COPY verification-service ./verification-service
+COPY credit-issuance-service ./credit-issuance-service
+
+# Build the whole project to install common-library and generate JARs
+RUN mvn clean install -DskipTests
+
+# Final stage - using a simple base image for the specific service
+# This is a template, we will use it as a reference for individual Dockerfiles
+# or just run specific services.

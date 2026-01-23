@@ -23,7 +23,7 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-
+    // need to be hashed
     private String password; // In real app, this should be hashed!
 
     private String role; // e.g., "COMPANY_ADMIN", "VERIFIER", "TRADER"
