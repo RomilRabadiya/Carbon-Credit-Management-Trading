@@ -1,30 +1,73 @@
 package com.carboncredit.common.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-
-
-import com.carboncredit.common.dto.ResponseEnvelope;
-
 import java.time.LocalDateTime;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class ResponseEnvelope<T> {
 
-    @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
-    
+
     private int status;
     private boolean success;
     private String message;
     private T data;
     private String error;
+
+    public ResponseEnvelope() {
+    }
+
+    public ResponseEnvelope(LocalDateTime timestamp, int status, boolean success, String message, T data,
+            String error) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.success = success;
+        this.message = message;
+        this.data = data;
+        this.error = error;
+    }
+
+    public static <T> ResponseEnvelopeBuilder<T> builder() {
+        return new ResponseEnvelopeBuilder<>();
+    }
+
+    public static class ResponseEnvelopeBuilder<T> {
+        private LocalDateTime timestamp = LocalDateTime.now();
+        private int status;
+        private boolean success;
+        private String message;
+        private T data;
+        private String error;
+
+        public ResponseEnvelopeBuilder<T> status(int status) {
+            this.status = status;
+            return this;
+        }
+
+        public ResponseEnvelopeBuilder<T> success(boolean success) {
+            this.success = success;
+            return this;
+        }
+
+        public ResponseEnvelopeBuilder<T> message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public ResponseEnvelopeBuilder<T> data(T data) {
+            this.data = data;
+            return this;
+        }
+
+        public ResponseEnvelopeBuilder<T> error(String error) {
+            this.error = error;
+            return this;
+        }
+
+        public ResponseEnvelope<T> build() {
+            return new ResponseEnvelope<T>(timestamp, status, success, message, data, error);
+        }
+    }
 
     public static <T> ResponseEnvelope<T> success(T data, String message) {
         return ResponseEnvelope.<T>builder()

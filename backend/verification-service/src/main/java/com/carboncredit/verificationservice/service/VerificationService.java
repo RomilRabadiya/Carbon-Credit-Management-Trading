@@ -1,12 +1,10 @@
 package com.carboncredit.verificationservice.service;
 
-import com.carboncredit.common.event.EmissionReportedEvent;
 import com.carboncredit.common.event.VerificationCompletedEvent;
 import com.carboncredit.verificationservice.model.VerificationRequest;
 import com.carboncredit.verificationservice.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -25,23 +23,12 @@ public class VerificationService {
     /**
      * Kafka Consumer: Listens to emission-topic for new emission reports
      */
-    @KafkaListener(topics = "emission-topic", groupId = "verification-group")
-    public void consumeEmissionEvent(EmissionReportedEvent event) {
-        log.info("Verification Service received Emission Reported Event");
-        log.info("Report ID: {}, Org ID: {}, Carbon Amount: {} {}",
-                event.getReportId(), event.getOrganizationId(),
-                event.getCarbonAmount(), event.getUnit());
-
-        // Create verification request
-        VerificationRequest verification = new VerificationRequest();
-        verification.setReportId(event.getReportId());
-        verification.setProjectId(event.getProjectId());
-        verification.setOrganizationId(event.getOrganizationId());
-        verification.setStatus("PENDING");
-        verification.setCreatedAt(LocalDateTime.now());
-
-        VerificationRequest saved = repository.save(verification);
-        log.info("Verification request created with ID: {} (Status: PENDING)", saved.getId());
+    public VerificationRequest createVerification(VerificationRequest request) {
+        request.setStatus("PENDING");
+        request.setCreatedAt(LocalDateTime.now());
+        VerificationRequest saved = repository.save(request);
+        log.info("Verification request created via API with ID: {}", saved.getId());
+        return saved;
     }
 
     /**

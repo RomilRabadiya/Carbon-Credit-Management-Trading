@@ -13,11 +13,16 @@ import com.carboncredit.userservice.security.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
         private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
         private final JwtAuthenticationFilter jwtAuthFilter;
+
+        public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
+                        JwtAuthenticationFilter jwtAuthFilter) {
+                this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+                this.jwtAuthFilter = jwtAuthFilter;
+        }
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http,

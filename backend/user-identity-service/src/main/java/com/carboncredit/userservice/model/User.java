@@ -1,17 +1,9 @@
 package com.carboncredit.userservice.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "users")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class User {
 
     @Id
@@ -23,10 +15,117 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-    // need to be hashed
-    private String password; // In real app, this should be hashed!
 
-    private String role; // e.g., "COMPANY_ADMIN", "VERIFIER", "TRADER"
+    private String password;
 
-    private Long organizationId; // Foreign key to Organization Service
+    private String role;
+
+    private Long organizationId;
+
+    public User() {
+    }
+
+    public User(Long id, String name, String email, String password, String role, Long organizationId) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.organizationId = organizationId;
+    }
+
+    public static UserBuilder builder() {
+        return new UserBuilder();
+    }
+
+    public static class UserBuilder {
+        private Long id;
+        private String name;
+        private String email;
+        private String password;
+        private String role;
+        private Long organizationId;
+
+        public UserBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public UserBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public UserBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public UserBuilder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public UserBuilder role(String role) {
+            this.role = role;
+            return this;
+        }
+
+        public UserBuilder organizationId(Long organizationId) {
+            this.organizationId = organizationId;
+            return this;
+        }
+
+        public User build() {
+            return new User(id, name, email, password, role, organizationId);
+        }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
 }

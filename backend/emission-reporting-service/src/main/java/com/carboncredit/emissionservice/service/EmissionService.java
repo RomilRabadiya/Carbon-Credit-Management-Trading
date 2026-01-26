@@ -28,16 +28,19 @@ public class EmissionService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final Map<String, EmissionCalculationStrategy> strategyMap;
+    private final com.carboncredit.emissionservice.client.VerificationClient verificationClient;
 
     public EmissionService(EmissionReportDAO emissionReportDAO,
             KafkaTemplate<String, Object> kafkaTemplate,
             ObjectMapper objectMapper,
-            List<EmissionCalculationStrategy> strategies) {
+            List<EmissionCalculationStrategy> strategies,
+            com.carboncredit.emissionservice.client.VerificationClient verificationClient) {
         this.emissionReportDAO = emissionReportDAO;
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
         this.strategyMap = strategies.stream()
                 .collect(Collectors.toMap(EmissionCalculationStrategy::getProjectType, Function.identity()));
+        this.verificationClient = verificationClient;
     }
 
     public EmissionReport submitReport(ReportRequestDto request) {
@@ -63,6 +66,7 @@ public class EmissionService {
 
         EmissionReport report = EmissionReport.builder()
                 .projectId(request.getProjectId())
+                .organizationId(request.getOrganizationId())
                 .projectType(request.getProjectType())
                 .emissionData(emissionDataJson)
                 .calculatedEmission(calculatedEmission)
@@ -74,10 +78,21 @@ public class EmissionService {
         EmissionReport savedReport = emissionReportDAO.save(report);
         log.info("Emission Report saved: {}", savedReport.getId());
 
-        // Publish Event
-        // Note: OrganizationID is missing in DTO for now, passing 0L or should be
-        // fetched from context.
-        // Assuming 1L for demo or needs to be added to DTO.
+        // Synchronous Verification Call (Feign)
+        // Creating Map payload similar to what DTO expects
+        Map<String, Object> verificationPayload = Map.of(
+                "reportId", savedReport.getId(),
+                "projectId", savedReport.getProjectId(),
+                "organizationId", savedReport.getOrganizationId() != null ? savedReport.getOrganizationId() : 0L);
+        try {
+            verificationClient.initiateVerification(verificationPayload);
+            log.info("Verification initiated validation via Feign Client for Report ID: {}", savedReport.getId());
+        } catch (Exception e) {
+            log.error("Failed to initiate verification via Feign", e);
+            // Non-blocking for now, or throw exception depending on business requirement
+        }
+
+        // Publish Event (Notification Only now)
         EmissionReportedEvent event = EmissionReportedEvent.builder()
                 .reportId(savedReport.getId())
                 .projectId(savedReport.getProjectId())

@@ -34,3 +34,19 @@ services:
       interval: 10s
       retries: 5
       start_period: 30s
+
+  postgres:
+    image: postgres:16
+    container_name: backend-postgres-1
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: carbon_credit_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    mem_limit: 256m
+
+volumes:
+  postgres_data:

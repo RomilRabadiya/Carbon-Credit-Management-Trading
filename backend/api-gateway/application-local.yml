@@ -1,0 +1,65 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: oauth2-login
+          uri: lb://user-identity-service
+          predicates:
+            - Path=/login/**, /oauth2/**
+        
+        - id: user-identity-service
+          uri: lb://user-identity-service
+          predicates:
+            - Path=/api/users/**
+
+        - id: auth-service
+          uri: lb://user-identity-service
+          predicates:
+            - Path=/api/auth/**
+
+        - id: organization-service
+          uri: lb://organization-service
+          predicates:
+            - Path=/api/organizations/**
+
+        - id: emission-reporting-service
+          uri: lb://emission-reporting-service
+          predicates:
+            - Path=/api/emissions/**
+
+        - id: verification-service
+          uri: lb://verification-service
+          predicates:
+            - Path=/api/verifications/**
+
+        - id: credit-issuance-service
+          uri: lb://credit-issuance-service
+          predicates:
+            - Path=/api/credits/**
+
+        - id: trading-service
+          uri: lb://trading-service
+          predicates:
+            - Path=/api/trading/**, /api/transactions/**
+
+        - id: audit-ledger-service
+          uri: lb://audit-ledger-service
+          predicates:
+            - Path=/api/audit/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true

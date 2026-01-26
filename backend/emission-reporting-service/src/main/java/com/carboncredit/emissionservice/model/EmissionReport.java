@@ -23,6 +23,8 @@ public class EmissionReport {
 
     private Long projectId;
 
+    private Long organizationId;
+
     @Column(nullable = false)
     private String projectType; // REFORESTATION, METHANE_CAPTURE
 

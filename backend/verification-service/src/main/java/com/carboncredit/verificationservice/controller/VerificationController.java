@@ -17,6 +17,11 @@ public class VerificationController {
 
     private final VerificationService verificationService;
 
+    @PostMapping
+    public ResponseEntity<VerificationRequest> initiateVerification(@RequestBody VerificationRequest request) {
+        return ResponseEntity.ok(verificationService.createVerification(request));
+    }
+
     @GetMapping
     public ResponseEntity<List<VerificationRequest>> getAllVerifications() {
         return ResponseEntity.ok(verificationService.getAllVerifications());
