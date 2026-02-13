@@ -24,6 +24,11 @@ public class AuditController {
         return ResponseEntity.ok(history);
     }
 
+    @GetMapping("/organization/{actor}")
+    public ResponseEntity<List<AuditRecord>> getOrganizationActivity(@PathVariable String actor) {
+        return ResponseEntity.ok(auditDAO.findByActorOrderByTimestampDesc(actor));
+    }
+
     // Note: A full chain of custody would also trace back to Verification and
     // Emission events using verificationId/reportId
     // For this MVP, we mainly track the credit's lifecycle by serial number.

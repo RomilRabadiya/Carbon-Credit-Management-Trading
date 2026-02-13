@@ -1,6 +1,6 @@
 package com.carboncredit.creditservice.config;
 
-import com.carboncredit.common.event.VerificationCompletedEvent;
+import com.carboncredit.creditservice.event.VerificationCompletedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -11,7 +11,6 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
@@ -42,6 +41,7 @@ public class KafkaConsumerConfig {
      * Consumer Factory for VerificationCompletedEvent
      */
     @Bean
+    @SuppressWarnings("null")
     public ConsumerFactory<String, VerificationCompletedEvent> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
 

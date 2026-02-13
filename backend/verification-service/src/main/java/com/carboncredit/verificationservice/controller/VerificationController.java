@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +37,13 @@ public class VerificationController {
     }
 
     @PutMapping("/{id}/approve")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('VERIFIER')")
     public ResponseEntity<VerificationRequest> approveVerification(
             @PathVariable Long id,
             @RequestBody Map<String, Object> request) {
 
-        BigDecimal creditsCalculated = new BigDecimal(request.get("creditsCalculated").toString());
         String remarks = (String) request.getOrDefault("remarks", "Manually approved");
 
-        return ResponseEntity.ok(verificationService.approveVerification(id, creditsCalculated, remarks));
+        return ResponseEntity.ok(verificationService.approveVerification(id, remarks));
     }
 }

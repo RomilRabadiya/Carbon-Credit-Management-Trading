@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/orgs")
+@RequestMapping("/api/organizations")
 @RequiredArgsConstructor
 public class OrganizationController {
 
@@ -29,5 +29,21 @@ public class OrganizationController {
     @GetMapping
     public ResponseEnvelope<List<Organization>> getAll() {
         return ResponseEnvelope.success(service.getAllOrganizations(), "Organizations retrieved");
+    }
+
+    @PostMapping("/{id}/balance/deduct")
+    // Secured: Only Internal Service (Trading) or Admin should call this.
+    // For now, leaving loosely guarded or use a "SYSTEM" role if available.
+    public ResponseEnvelope<Void> deductBalance(@PathVariable Long id, @RequestBody java.math.BigDecimal amount) {
+        service.deductBalance(id, amount);
+        return ResponseEnvelope.success(null, "Balance deducted");
+    }
+
+    @PostMapping("/{id}/balance/add")
+    // Secured: Faucet for Demo (Authorized Users) or Internal
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    public ResponseEnvelope<Void> addBalance(@PathVariable Long id, @RequestBody java.math.BigDecimal amount) {
+        service.addBalance(id, amount);
+        return ResponseEnvelope.success(null, "Balance added");
     }
 }

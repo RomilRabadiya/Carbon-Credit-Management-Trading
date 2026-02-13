@@ -1,22 +1,22 @@
 package com.carboncredit.creditservice.consumer;
 
 import com.carboncredit.common.event.VerificationCompletedEvent;
-import com.carboncredit.creditservice.service.CreditIssuanceService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class VerificationEventConsumer {
 
-    private final CreditIssuanceService creditIssuanceService;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(VerificationEventConsumer.class);
+
+    // Legacy consumer, currently unused as issuance is synchronous.
+    // Keeping class shell to avoid breaking component scan if needed, or could be
+    // deleted.
 
     @KafkaListener(topics = "${kafka.topic.verification-completed:verification-completed-topic}", groupId = "credit-issuance-group")
     public void handleVerificationCompleted(VerificationCompletedEvent event) {
         log.info("Received VerificationCompletedEvent: {}", event);
-        creditIssuanceService.processVerificationEvent(event);
+        // Logic removed: Credit Issuance is now handled synchronously via API.
+        // This listener is kept just to drain the topic if needed, or can be removed.
     }
 }

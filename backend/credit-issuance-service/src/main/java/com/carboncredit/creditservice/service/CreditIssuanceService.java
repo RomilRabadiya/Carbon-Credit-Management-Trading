@@ -4,27 +4,53 @@ import com.carboncredit.common.event.CreditIssuedEvent;
 import com.carboncredit.common.event.VerificationCompletedEvent;
 import com.carboncredit.creditservice.dao.CreditDAO;
 import com.carboncredit.creditservice.model.CarbonCredit;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class CreditIssuanceService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CreditIssuanceService.class);
 
     private final CreditDAO creditDAO;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    public CreditIssuanceService(CreditDAO creditDAO, KafkaTemplate<String, Object> kafkaTemplate) {
+        this.creditDAO = creditDAO;
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     @Value("${kafka.topic.credit-issued}")
     private String creditIssuedTopic;
 
     @Transactional
+    public void issueCredits(Long projectId, BigDecimal amount, Long ownerId) {
+        CarbonCredit credit = new CarbonCredit();
+        credit.setAmount(amount);
+        credit.setOwnerId(ownerId);
+        credit.setStatus("ISSUED");
+        credit.setIssuanceDate(LocalDateTime.now());
+        credit.setExpiryDate(LocalDateTime.now().plusYears(10));
+
+        creditDAO.save(credit);
+        log.info("Credits issued successfully: {}", credit.getId());
+
+        // Emit CreditIssuedEvent (Kafka) -> Notification Service listens to this!
+        CreditIssuedEvent event = CreditIssuedEvent.builder()
+                .creditId(credit.getId())
+                .creditAmount(amount)
+                .organizationId(ownerId)
+                .eventType("CREDIT_ISSUED")
+                .build();
+        kafkaTemplate.send("credit-issued-topic", event);
+    }
+
+    // Keep this for backward compatibility or remove logic if fully migrated
+    @SuppressWarnings("null")
     public void processVerificationEvent(VerificationCompletedEvent event) {
         log.info("Processing VerificationCompletedEvent for verificationId: {}", event.getVerificationId());
 
@@ -42,14 +68,14 @@ public class CreditIssuanceService {
         // Generate Serial Number
         String serialNumber = generateSerialNumber(event);
 
-        CarbonCredit credit = CarbonCredit.builder()
-                .serialNumber(serialNumber)
-                .verificationId(event.getVerificationId())
-                .ownerId(event.getOrganizationId())
-                .amount(event.getCarbonCreditsCalculated())
-                .status("ACTIVE") // Default status
-                .issuanceDate(LocalDateTime.now())
-                .build();
+        CarbonCredit credit = new CarbonCredit();
+        credit.setSerialNumber(serialNumber);
+        credit.setVerificationId(event.getVerificationId());
+        credit.setOwnerId(event.getOrganizationId());
+        credit.setAmount(event.getCarbonCreditsCalculated());
+        credit.setStatus("ACTIVE");
+        credit.setIssuanceDate(LocalDateTime.now());
+        credit.setExpiryDate(LocalDateTime.now().plusYears(10));
 
         creditDAO.save(credit);
         log.info("Minted Carbon Credit: {} for Owner: {}", serialNumber, event.getOrganizationId());
@@ -69,6 +95,7 @@ public class CreditIssuanceService {
     }
 
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public com.carboncredit.creditservice.dto.CarbonCreditDTO getCreditById(Long id) {
         return creditDAO.findById(id)
                 .map(this::convertToDTO)
@@ -76,6 +103,7 @@ public class CreditIssuanceService {
     }
 
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public com.carboncredit.creditservice.dto.CreditListResponseDTO getCreditsByOrganization(String organizationId) {
         java.util.List<com.carboncredit.creditservice.dto.CarbonCreditDTO> dtos = creditDAO.findAll().stream()
                 .filter(c -> c.getOwnerId() != null && c.getOwnerId().toString().equals(organizationId))
@@ -89,15 +117,35 @@ public class CreditIssuanceService {
     }
 
     private com.carboncredit.creditservice.dto.CarbonCreditDTO convertToDTO(CarbonCredit credit) {
-        return com.carboncredit.creditservice.dto.CarbonCreditDTO.builder()
-                .id(credit.getId())
-                .serialNumber(credit.getSerialNumber())
-                .ownerId(credit.getOwnerId())
-                .amount(credit.getAmount())
-                .status(credit.getStatus())
-                .verificationId(credit.getVerificationId())
-                .issuanceDate(credit.getIssuanceDate())
-                .build();
+        return new com.carboncredit.creditservice.dto.CarbonCreditDTO(
+                credit.getId(),
+                credit.getSerialNumber(),
+                credit.getOwnerId(),
+                credit.getAmount(),
+                credit.getStatus(),
+                credit.getVerificationId(),
+                credit.getIssuanceDate());
+    }
+
+    @SuppressWarnings("null")
+    public void retireCredit(Long creditId, String beneficiary, String reason) {
+        CarbonCredit credit = creditDAO.findById(creditId)
+                .orElseThrow(() -> new IllegalArgumentException("Credit not found: " + creditId));
+
+        if (!"ACTIVE".equals(credit.getStatus())) {
+            throw new IllegalStateException(
+                    "Credit is not active and cannot be retired. Current status: " + credit.getStatus());
+        }
+
+        credit.setStatus("RETIRED");
+        credit.setRetirementBeneficiary(beneficiary);
+        credit.setRetirementReason(reason);
+        credit.setRetirementDate(LocalDateTime.now());
+
+        creditDAO.save(credit);
+        log.info("Retired credit {} for benificiary '{}' (Reason: {})", creditId, beneficiary, reason);
+
+        // Optionally emit an event here if needed
     }
 
     private String generateSerialNumber(VerificationCompletedEvent event) {
@@ -109,5 +157,24 @@ public class CreditIssuanceService {
         long sequence = creditDAO.count() + 1;
 
         return String.format("ISO-%s-%d-%d-%06d", country, projectId, year, sequence);
+    }
+
+    @Transactional
+    @SuppressWarnings("null")
+    public void transferCredit(Long creditId, Long currentOwnerId, Long newOwnerId) {
+        CarbonCredit credit = creditDAO.findById(creditId)
+                .orElseThrow(() -> new IllegalArgumentException("Credit not found: " + creditId));
+
+        if (!credit.getOwnerId().equals(currentOwnerId)) {
+            throw new IllegalArgumentException("Current owner does not match. Transfer denied.");
+        }
+
+        if (!"ACTIVE".equals(credit.getStatus())) {
+            throw new IllegalStateException("Credit is not active (Status: " + credit.getStatus() + ")");
+        }
+
+        log.info("Transferring credit {} from owner {} to owner {}", creditId, currentOwnerId, newOwnerId);
+        credit.setOwnerId(newOwnerId);
+        creditDAO.save(credit);
     }
 }

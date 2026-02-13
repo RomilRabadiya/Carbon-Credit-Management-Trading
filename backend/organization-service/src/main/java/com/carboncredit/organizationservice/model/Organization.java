@@ -26,4 +26,7 @@ public class Organization {
 
     private String address;
     private String contactEmail;
+
+    @Column(nullable = false)
+    private java.math.BigDecimal balance; // Default 0.00
 }

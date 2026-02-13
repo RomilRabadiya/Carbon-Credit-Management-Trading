@@ -53,6 +53,7 @@ public class KafkaProducerConfig {
      * Producer Factory for CREDIT_ISSUED events
      */
     @Bean
+    @SuppressWarnings("null")
     public ProducerFactory<String, CreditIssuedEvent> creditIssuedProducerFactory() {
         return new DefaultKafkaProducerFactory<>(getProducerConfig());
     }
@@ -61,6 +62,7 @@ public class KafkaProducerConfig {
      * KafkaTemplate for CREDIT_ISSUED events
      */
     @Bean
+    @SuppressWarnings("null")
     public KafkaTemplate<String, CreditIssuedEvent> creditIssuedKafkaTemplate() {
         return new KafkaTemplate<>(creditIssuedProducerFactory());
     }
@@ -69,6 +71,7 @@ public class KafkaProducerConfig {
      * Producer Factory for CREDIT_ISSUANCE_FAILED events
      */
     @Bean
+    @SuppressWarnings("null")
     public ProducerFactory<String, CreditIssuanceFailedEvent> creditFailureProducerFactory() {
         return new DefaultKafkaProducerFactory<>(getProducerConfig());
     }
@@ -77,6 +80,7 @@ public class KafkaProducerConfig {
      * KafkaTemplate for CREDIT_ISSUANCE_FAILED events
      */
     @Bean
+    @SuppressWarnings("null")
     public KafkaTemplate<String, CreditIssuanceFailedEvent> creditFailureKafkaTemplate() {
         return new KafkaTemplate<>(creditFailureProducerFactory());
     }

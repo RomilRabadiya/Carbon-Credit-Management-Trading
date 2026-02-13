@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.1</version>
+		<version>3.2.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.carboncredit</groupId>
@@ -31,6 +31,7 @@
 		<module>trading-service</module>
 
 		<module>audit-ledger-service</module>
+		<module>notification-service</module>
 		<module>common-library</module>
 	</modules>
 

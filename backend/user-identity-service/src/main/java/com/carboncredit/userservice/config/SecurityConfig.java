@@ -4,58 +4,48 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import lombok.RequiredArgsConstructor;
-import com.carboncredit.userservice.security.JwtAuthenticationFilter;
-import com.carboncredit.userservice.security.OAuth2LoginSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-        private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-        private final JwtAuthenticationFilter jwtAuthFilter;
-
-        public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
-                        JwtAuthenticationFilter jwtAuthFilter) {
-                this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
-                this.jwtAuthFilter = jwtAuthFilter;
-        }
-
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                        org.springframework.security.authentication.AuthenticationProvider authenticationProvider)
-                        throws Exception {
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .csrf(csrf -> csrf.disable())
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/api/auth/**", "/login/oauth2/**", "/oauth2/**")
-                                                .permitAll()
                                                 .anyRequest().authenticated())
-                                .oauth2Login(oauth2 -> oauth2
-                                                .successHandler(oAuth2LoginSuccessHandler))
-                                .sessionManagement(sess -> sess.sessionCreationPolicy(
-                                                org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
-                                .authenticationProvider(authenticationProvider)
-                                .addFilterBefore(jwtAuthFilter,
-                                                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
-                return http.build();
-        }
+                                .oauth2ResourceServer(oauth2 -> oauth2
+                                                .jwt(org.springframework.security.config.Customizer.withDefaults()));
 
-        @Bean
-        public org.springframework.security.authentication.AuthenticationProvider authenticationProvider(
-                        org.springframework.security.core.userdetails.UserDetailsService userDetailsService,
-                        PasswordEncoder passwordEncoder) {
-                org.springframework.security.authentication.dao.DaoAuthenticationProvider authProvider = new org.springframework.security.authentication.dao.DaoAuthenticationProvider();
-                authProvider.setUserDetailsService(userDetailsService);
-                authProvider.setPasswordEncoder(passwordEncoder);
-                return authProvider;
+                return http.build();
         }
 
         @Bean
         public PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
+        }
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowCredentials(true);
+                config.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:8080"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(Arrays.asList("*"));
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
         }
 }

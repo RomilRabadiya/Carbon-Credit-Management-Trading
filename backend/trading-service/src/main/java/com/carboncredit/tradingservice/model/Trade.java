@@ -27,6 +27,9 @@ public class Trade {
     @Column(nullable = true)
     private Long buyerId;
 
+    @Column(nullable = true)
+    private java.util.UUID listingId;
+
     @Column(nullable = false)
     private Long creditId;
 

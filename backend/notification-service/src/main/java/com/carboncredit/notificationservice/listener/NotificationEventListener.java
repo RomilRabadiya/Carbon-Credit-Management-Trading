@@ -4,17 +4,20 @@ import com.carboncredit.notificationservice.event.CreditIssuedEvent;
 import com.carboncredit.notificationservice.event.EmissionReportedEvent;
 import com.carboncredit.notificationservice.event.VerificationCompletedEvent;
 import com.carboncredit.notificationservice.service.NotificationMessagingService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class NotificationEventListener {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(NotificationEventListener.class);
+
     private final NotificationMessagingService messagingService;
+
+    public NotificationEventListener(NotificationMessagingService messagingService) {
+        this.messagingService = messagingService;
+    }
 
     @KafkaListener(topics = "emission-topic", groupId = "notification-service-group")
     public void handleEmissionReported(EmissionReportedEvent event) {

@@ -43,6 +43,13 @@ public class AuditEventListener {
                 event.getOwnerId().toString());
     }
 
+    @KafkaListener(topics = "${kafka.topic.trade-completed:trade-completed-topic}", groupId = "audit-service-group")
+    public void handleTradeCompleted(com.carboncredit.common.event.TradeCompletedEvent event) {
+        saveAudit("TRADE_COMPLETED", event.getCreditId().toString(), null, event,
+                "Seller:" + event.getSellerId() + ">Buyer:" + event.getBuyerId());
+    }
+
+    @SuppressWarnings("null")
     private void saveAudit(String eventType, String entityId, String serialNumber, Object payload, String actor) {
         try {
             String details = objectMapper.writeValueAsString(payload);

@@ -1,21 +1,13 @@
 package com.carboncredit.tradingservice.consumer;
 
-import com.carboncredit.common.event.CreditIssuedEvent;
-import com.carboncredit.tradingservice.dao.TradableCreditDAO;
-import com.carboncredit.tradingservice.model.TradableCredit;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class CreditIssuedEventConsumer {
 
-    private final TradableCreditDAO tradableCreditDAO;
+    // Legacy consumer, replaced by Feign client calls.
 
     // @KafkaListener(topics = "${kafka.topic.credit-issued:credit-issued-topic}",
     // groupId = "${spring.kafka.consumer.group-id:trading-service-group}")

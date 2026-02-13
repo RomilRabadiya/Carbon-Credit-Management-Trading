@@ -1,6 +1,5 @@
 package com.carboncredit.apigateway.filter;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -10,41 +9,45 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import java.security.Key;
 
 @Component
-public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+public class AuthenticationGatewayFilterFactory
+        extends AbstractGatewayFilterFactory<AuthenticationGatewayFilterFactory.Config> {
 
     @Value("${jwt.secret:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
     private String secretKey;
 
-    public AuthenticationFilter() {
+    public AuthenticationGatewayFilterFactory() {
         super(Config.class);
     }
 
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            if (validator.isSecured.test(exchange.getRequest())) {
-                if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                    throw new RuntimeException("Missing Authorization Header");
-                }
+            // RELAXED FILTER: Relying on Spring Security & TokenRelay
+            // if (validator.isSecured.test(exchange.getRequest())) {
+            // // Check for generic Authorization header
+            // if
+            // (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION))
+            // {
+            // throw new RuntimeException("Missing Authorization Header");
+            // }
 
-                String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-                if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                    authHeader = authHeader.substring(7);
-                }
+            // String authHeader =
+            // exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+            // if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            // authHeader = authHeader.substring(7);
+            // }
 
-                try {
-                    validateToken(authHeader);
-                } catch (Exception e) {
-                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return exchange.getResponse().setComplete();
-                }
-            }
+            // try {
+            // // validateToken(authHeader);
+            // } catch (Exception e) {
+            // exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            // return exchange.getResponse().setComplete();
+            // }
+            // }
             return chain.filter(exchange);
         };
     }

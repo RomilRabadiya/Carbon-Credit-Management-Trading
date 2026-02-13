@@ -1,13 +1,12 @@
 package com.carboncredit.emissionservice.service;
 
-import com.carboncredit.common.event.EmissionReportedEvent;
+import com.carboncredit.emissionservice.event.EmissionReportedEvent;
 import com.carboncredit.emissionservice.dao.EmissionReportDAO;
 import com.carboncredit.emissionservice.dto.ReportRequestDto;
 import com.carboncredit.emissionservice.model.EmissionReport;
 import com.carboncredit.emissionservice.strategy.EmissionCalculationStrategy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class EmissionService {
 
@@ -30,6 +28,13 @@ public class EmissionService {
     private final Map<String, EmissionCalculationStrategy> strategyMap;
     private final com.carboncredit.emissionservice.client.VerificationClient verificationClient;
 
+    // Lombok's RequiredArgsConstructor will handle injection of final fields.
+    // We need to initialize the map, though.
+    // Actually, it's better to inject the list and convert it.
+    // But since `strategyMap` is final, we can't assign it in PostConstruct easily
+    // without removing final.
+    // Let's keep it final and use constructor injection manually but cleaner.
+
     public EmissionService(EmissionReportDAO emissionReportDAO,
             KafkaTemplate<String, Object> kafkaTemplate,
             ObjectMapper objectMapper,
@@ -38,12 +43,21 @@ public class EmissionService {
         this.emissionReportDAO = emissionReportDAO;
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
+        this.verificationClient = verificationClient;
         this.strategyMap = strategies.stream()
                 .collect(Collectors.toMap(EmissionCalculationStrategy::getProjectType, Function.identity()));
-        this.verificationClient = verificationClient;
     }
 
+    @SuppressWarnings("null")
     public EmissionReport submitReport(ReportRequestDto request) {
+        // DUPLICATE CHECK: Don't allow submission if one is already pending or verified
+        if (emissionReportDAO.existsByProjectIdAndStatusIn(
+                request.getProjectId(),
+                java.util.List.of("PENDING_VERIFICATION", "VERIFIED"))) {
+            throw new IllegalStateException(
+                    "A report for Project ID " + request.getProjectId() + " is already Pending or Verified.");
+        }
+
         // MRV Logic: Evidence is mandatory
         if (request.getEvidenceUrl() == null || request.getEvidenceUrl().isEmpty()) {
             throw new IllegalArgumentException(
@@ -71,6 +85,8 @@ public class EmissionService {
                 .emissionData(emissionDataJson)
                 .calculatedEmission(calculatedEmission)
                 .evidenceUrl(request.getEvidenceUrl())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
                 .status("PENDING_VERIFICATION")
                 .createdAt(LocalDateTime.now())
                 .build();

@@ -5,8 +5,23 @@ spring:
   application:
     name: api-gateway
   
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 708607407785-pokfj5e5kpnl3b91lodkv6rq4jmq119i.apps.googleusercontent.com
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: openid, profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+
   cloud:
     gateway:
+      default-filters:
+        - AddIdTokenHeader
       discovery:
         locator:
           enabled: true
@@ -17,56 +32,70 @@ spring:
           predicates:
             - Path=/login/**, /oauth2/**
         
+        - id: auth-service
+          uri: lb://user-identity-service
+          predicates:
+            - Path=/api/auth/**
+        
         - id: user-identity-service
           uri: lb://user-identity-service
           predicates:
             - Path=/api/users/**
-          filters:
-            - Authentication
 
         - id: organization-service
           uri: lb://organization-service
           predicates:
             - Path=/api/organizations/**
-          filters:
-            - Authentication
 
         - id: emission-reporting-service
           uri: lb://emission-reporting-service
           predicates:
             - Path=/api/emissions/**
-          filters:
-            - Authentication
 
         - id: verification-service
           uri: lb://verification-service
           predicates:
             - Path=/api/verifications/**
-          filters:
-            - Authentication
 
         - id: credit-issuance-service
           uri: lb://credit-issuance-service
           predicates:
             - Path=/api/credits/**
-          filters:
-            - Authentication
 
         - id: trading-service
           uri: lb://trading-service
           predicates:
             - Path=/api/trading/**, /api/transactions/**
-          filters:
-            - Authentication
 
         - id: audit-ledger-service
           uri: lb://audit-ledger-service
           predicates:
             - Path=/api/audit/**
+
+
+        - id: geo-service
+          uri: http://localhost:8001
+          predicates:
+            - Path=/api/geo/**
           filters:
-            - Authentication
+            - RewritePath=/api/geo/(?<segment>.*), /$\{segment}
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
 
 eureka:
+  instance:
+    hostname: localhost
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/

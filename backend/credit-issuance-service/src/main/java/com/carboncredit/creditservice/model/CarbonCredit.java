@@ -1,11 +1,6 @@
 package com.carboncredit.creditservice.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,15 +21,11 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "carbon_credits", indexes = {
-        @Index(name = "idx_owner_org", columnList = "ownerOrganizationId"),
+        @Index(name = "idx_owner_org", columnList = "owner_id"),
         @Index(name = "idx_batch_id", columnList = "creditBatchId"),
         @Index(name = "idx_report_id", columnList = "reportId", unique = true),
         @Index(name = "idx_status", columnList = "status")
 })
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class CarbonCredit {
 
     @Id
@@ -44,6 +35,7 @@ public class CarbonCredit {
     @Column(nullable = false, unique = true)
     private String serialNumber; // ISO-Country-Project-Year-Seq
 
+    @Column(name = "owner_id")
     private Long ownerId; // Organization ID
 
     private BigDecimal amount; // 1 credit = 1 tonne
@@ -55,6 +47,126 @@ public class CarbonCredit {
 
     private LocalDateTime issuanceDate;
 
-    // Helper methods can be re-added if needed, but for now keeping it clean as per
-    // new schema.
+    @Column(name = "expiry_date")
+    private LocalDateTime expiryDate;
+
+    // Additional fields mentioned in indexes but missing in fields?
+    // creditBatchId and reportId are in indexes but NOT in the original class
+    // fields I saw (Step 558).
+    // I will add them to be safe if they are needed, or ignore if unused.
+    // Actually, I'll stick to what was there.
+
+    // Retirement & Anti-Fraud Fields
+    private String retirementBeneficiary; // Who is claiming the offset?
+    private String retirementReason; // Why? (e.g. "2025 Operations")
+    private LocalDateTime retirementDate; // When?
+
+    // Constructors
+    public CarbonCredit() {
+    }
+
+    public CarbonCredit(Long id, String serialNumber, Long ownerId, BigDecimal amount, String status,
+            Long verificationId, LocalDateTime issuanceDate, LocalDateTime expiryDate, String retirementBeneficiary,
+            String retirementReason, LocalDateTime retirementDate) {
+        this.id = id;
+        this.serialNumber = serialNumber;
+        this.ownerId = ownerId;
+        this.amount = amount;
+        this.status = status;
+        this.verificationId = verificationId;
+        this.issuanceDate = issuanceDate;
+        this.expiryDate = expiryDate;
+        this.retirementBeneficiary = retirementBeneficiary;
+        this.retirementReason = retirementReason;
+        this.retirementDate = retirementDate;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Long getVerificationId() {
+        return verificationId;
+    }
+
+    public void setVerificationId(Long verificationId) {
+        this.verificationId = verificationId;
+    }
+
+    public LocalDateTime getIssuanceDate() {
+        return issuanceDate;
+    }
+
+    public void setIssuanceDate(LocalDateTime issuanceDate) {
+        this.issuanceDate = issuanceDate;
+    }
+
+    public LocalDateTime getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDateTime expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public String getRetirementBeneficiary() {
+        return retirementBeneficiary;
+    }
+
+    public void setRetirementBeneficiary(String retirementBeneficiary) {
+        this.retirementBeneficiary = retirementBeneficiary;
+    }
+
+    public String getRetirementReason() {
+        return retirementReason;
+    }
+
+    public void setRetirementReason(String retirementReason) {
+        this.retirementReason = retirementReason;
+    }
+
+    public LocalDateTime getRetirementDate() {
+        return retirementDate;
+    }
+
+    public void setRetirementDate(LocalDateTime retirementDate) {
+        this.retirementDate = retirementDate;
+    }
 }

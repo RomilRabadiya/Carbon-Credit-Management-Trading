@@ -4,53 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
-/**
- * Kafka Event: CREDIT_ISSUED
- * 
- * Produced by: Credit Issuance Service
- * Consumed by: Trading Service, Audit Service, Notification Service
- * 
- * Published when credits are successfully issued to an organization
- * 
- * Contract:
- * - creditBatchId: Unique identifier for this batch of credits
- * - reportId: Source emission report
- * - organizationId: Organization that received the credits
- * - totalCreditsIssued: Total credits issued (typically equals
- * verifiedEmissionAmount)
- * - issuedAt: Timestamp of issuance
- */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@ToString
 public class CreditIssuedEvent {
-
-    /**
-     * Unique batch identifier for this credit issuance
-     */
-    private String creditBatchId;
-
-    /**
-     * Source emission report ID
-     */
-    private Long reportId;
-
-    /**
-     * Organization that received the credits
-     */
-    private String organizationId;
-
-    /**
-     * Total amount of credits issued
-     */
-    private Double totalCreditsIssued;
-
-    /**
-     * Timestamp when credits were issued
-     */
-    private LocalDateTime issuedAt;
+    private Long creditId;
+    private String serialNumber;
+    private Long organizationId;
+    private Long verificationId;
+    private BigDecimal creditAmount;
+    private String unit;
+    private String eventType;
 }

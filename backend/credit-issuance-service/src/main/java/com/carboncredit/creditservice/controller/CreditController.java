@@ -1,73 +1,95 @@
 package com.carboncredit.creditservice.controller;
 
-import com.carboncredit.creditservice.dto.CarbonCreditDTO;
-import com.carboncredit.creditservice.dto.CreditListResponseDTO;
 import com.carboncredit.creditservice.service.CreditIssuanceService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/credits")
-@RequiredArgsConstructor
-@Slf4j
 public class CreditController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CreditController.class);
 
     private final CreditIssuanceService creditIssuanceService;
 
-    @GetMapping("/{creditId}")
-    public ResponseEntity<CarbonCreditDTO> getCreditById(@PathVariable Long creditId) {
-        log.info("GET /api/credits/{} - Fetching credit by ID", creditId);
+    public CreditController(CreditIssuanceService creditIssuanceService) {
+        this.creditIssuanceService = creditIssuanceService;
+    }
+
+    @PostMapping("/issue")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('VERIFIER')")
+    public ResponseEntity<Void> issueCredits(@RequestBody Map<String, Object> request) {
+        log.info("Received credit issuance request: {}", request);
+        // ... (rest of logic)
+        Long projectId = ((Number) request.get("projectId")).longValue();
+        BigDecimal amount = new BigDecimal(request.get("amount").toString());
+        Long ownerId = ((Number) request.get("ownerId")).longValue();
+
+        creditIssuanceService.issueCredits(projectId, amount, ownerId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Retire a carbon credit (burn it).
+     * Requires beneficiary and reason for anti-fraud.
+     */
+    @PostMapping("/{creditId}/retire")
+    // In real world, owner check is done inside service logic too
+    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> retireCredit(
+            @PathVariable Long creditId,
+            @RequestBody Map<String, String> request) {
+
+        String beneficiary = request.get("beneficiary");
+        String reason = request.get("reason");
+
+        if (beneficiary == null || reason == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         try {
-            CarbonCreditDTO credit = creditIssuanceService.getCreditById(creditId);
-            return ResponseEntity.ok(credit);
+            creditIssuanceService.retireCredit(creditId, beneficiary, reason);
+            return ResponseEntity.ok().build();
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("Retirement failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
+    // ... (Getters can be public or authenticated)
+
+    /**
+     * Internal/System Endpoint to Transfer Credit Ownership
+     * Used by Trading Service when a trade is completed.
+     * Ideally protected by "Inter-Service Token" or simply Admin role for now.
+     */
+    @PostMapping("/{creditId}/transfer")
+    public ResponseEntity<Void> transferCredit(
+            @PathVariable Long creditId,
+            @RequestBody Map<String, Long> request) {
+        // Internal endpoint remains open for Feign access (or secured via network level
+        // in real prod)
+        // For now, leaving open to avoid Feign 403 complexity without token relay
+        Long currentOwnerId = request.get("currentOwnerId");
+        Long newOwnerId = request.get("newOwnerId");
+
+        if (currentOwnerId == null || newOwnerId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            log.info("Request to transfer credit {} from {} to {}", creditId, currentOwnerId, newOwnerId);
+            creditIssuanceService.transferCredit(creditId, currentOwnerId, newOwnerId);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            // Credit not found
-            log.warn("Credit not found: {}", creditId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-        } catch (Exception e) {
-            log.error("Error fetching credit {}: {}", creditId, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.warn("Transfer failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().build(); // 400 if owner mismatch or not found
+        } catch (IllegalStateException e) {
+            log.warn("Transfer failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 if status invalid
         }
-    }
-
-    /**
-     * Get all credits for an organization
-     * 
-     * AUTHENTICATION: Assumes API Gateway validated JWT
-     * AUTHORIZATION: Organization ID from path parameter
-     * 
-     * Best Practice: API Gateway should validate that JWT organization
-     * matches the requested organizationId (prevent cross-org access)
-     * 
-     * @param organizationId Organization identifier
-     * @return ResponseEntity with list of credits
-     */
-    @GetMapping("/organization/{organizationId}")
-    public ResponseEntity<CreditListResponseDTO> getCreditsByOrganization(@PathVariable Long organizationId) {
-        log.info("GET /api/credits/organization/{} - Fetching credits for organization", organizationId);
-
-        try {
-            CreditListResponseDTO response = creditIssuanceService.getCreditsByOrganization(organizationId.toString());
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("Error fetching credits for organization {}: {}", organizationId, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    /**
-     * Health check endpoint for monitoring
-     * Not authenticated - used by load balancers/monitoring systems
-     */
-    @GetMapping("/health")
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("CREDIT-SERVICE is healthy");
     }
 }

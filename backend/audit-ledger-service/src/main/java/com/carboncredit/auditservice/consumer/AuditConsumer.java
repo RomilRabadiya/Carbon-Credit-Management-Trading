@@ -1,6 +1,6 @@
 package com.carboncredit.auditservice.consumer;
 
-import com.carboncredit.common.event.EmissionReportedEvent;
+import com.carboncredit.auditservice.event.EmissionReportedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;

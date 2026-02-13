@@ -35,6 +35,12 @@ public class EmissionReport {
 
     private String evidenceUrl;
 
+    @Column(nullable = false)
+    private Double latitude;
+
+    @Column(nullable = false)
+    private Double longitude;
+
     private String status; // PENDING_VERIFICATION, VERIFIED, REJECTED
 
     private LocalDateTime createdAt;

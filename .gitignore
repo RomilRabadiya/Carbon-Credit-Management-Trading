@@ -4,3 +4,9 @@
 *.log
 *.class
 .DS_Store
+*.ps1
+*.bat
+*.sh
+*.md
+client_secret_*.json
+**.env

@@ -11,4 +11,6 @@ public interface AuditDAO extends JpaRepository<AuditRecord, Long> {
     List<AuditRecord> findBySerialNumberOrderByTimestampAsc(String serialNumber);
 
     List<AuditRecord> findByEntityId(String entityId);
+
+    List<AuditRecord> findByActorOrderByTimestampDesc(String actor);
 }

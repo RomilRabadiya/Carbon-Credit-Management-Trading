@@ -17,4 +17,6 @@ public class ReportRequestDto {
     private String projectType; // REFORESTATION, METHANE_CAPTURE
     private Map<String, Object> data;
     private String evidenceUrl;
+    private Double latitude;
+    private Double longitude;
 }

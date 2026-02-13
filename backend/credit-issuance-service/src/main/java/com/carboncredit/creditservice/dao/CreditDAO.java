@@ -11,4 +11,6 @@ public interface CreditDAO extends JpaRepository<CarbonCredit, Long> {
     boolean existsByVerificationId(Long verificationId);
 
     Optional<CarbonCredit> findBySerialNumber(String serialNumber);
+
+    java.util.List<CarbonCredit> findByStatus(String status);
 }
