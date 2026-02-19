@@ -17,7 +17,7 @@ public class TradingController {
     private final com.carboncredit.tradingservice.client.UserClient userClient;
 
     @PostMapping("/list")
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('SELLER')")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SELLER', 'ORGANIZATION')")
     public ResponseEntity<com.carboncredit.tradingservice.model.Listing> listCredit(
             @RequestBody java.util.Map<String, Object> request,
             @RequestHeader("X-Organization-Id") Long organizationId) {
@@ -72,13 +72,12 @@ public class TradingController {
     }
 
     @PostMapping("/retire/{creditId}")
-    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('BUYER', 'SELLER')")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('BUYER', 'SELLER', 'ORGANIZATION')")
     public ResponseEntity<TransactionResponse> retireCredit(
             @PathVariable Long creditId,
             @RequestHeader("X-Organization-Id") Long organizationId) {
 
         log.info("Received retirement request for credit {} from org {}", creditId, organizationId);
-        // ... (Keep existing)
         try {
             TransactionResponse response = tradingService.retireCredit(creditId, organizationId);
             return ResponseEntity.ok(response);

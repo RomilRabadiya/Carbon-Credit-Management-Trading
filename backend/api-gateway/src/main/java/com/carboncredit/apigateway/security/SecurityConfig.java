@@ -22,6 +22,7 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeExchange(exchange -> exchange
                                                 .pathMatchers("/eureka/**").permitAll()
+                                                .pathMatchers("/ws/**").permitAll()
                                                 .pathMatchers("/api/auth/**").permitAll() // Ensure auth endpoints are
                                                                                           // open if needed
                                                 .anyExchange().authenticated())

@@ -36,7 +36,7 @@ public class CreditIssuanceService {
         credit.setProjectType(projectType);
         credit.setLatitude(latitude);
         credit.setLongitude(longitude);
-        credit.setStatus("ISSUED");
+        credit.setStatus("ACTIVE");
         credit.setIssuanceDate(LocalDateTime.now());
         credit.setExpiryDate(LocalDateTime.now().plusYears(10));
 

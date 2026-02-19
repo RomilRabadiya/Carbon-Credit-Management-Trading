@@ -34,8 +34,6 @@ public class TradingService {
     @Value("${kafka.topic.trade-completed:trade-completed-topic}")
     private String tradeCompletedTopic;
 
-    // ... (keep existing methods until buyCredit)
-
     /**
      * Buy a listed credit
      */

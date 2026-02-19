@@ -33,7 +33,7 @@ export default function VerifierDashboard() {
     const { requests, loading } = useSelector((state: RootState) => state.verification);
     const { user } = useSelector((state: RootState) => state.auth);
 
-    const [analyzing, setAnalyzing] = useState<string | null>(null);
+    const [analyzing, setAnalyzing] = useState<number | null>(null);
     const [analysisResult, setAnalysisResult] = useState<GeoAnalysisResult | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -44,12 +44,12 @@ export default function VerifierDashboard() {
     const pendingRequests = requests.filter(r => r.status === "PENDING");
     const approvedCount = requests.filter(r => r.status === "APPROVED").length;
 
-    const handleApprove = (id: string) => {
-        dispatch(approveRequest(id));
+    const handleApprove = (id: number) => {
+        dispatch(approveRequest(String(id)));
     };
 
-    const handleReject = (id: string) => {
-        dispatch(rejectRequest(id));
+    const handleReject = (id: number) => {
+        dispatch(rejectRequest(String(id)));
     };
 
     const runAnalysis = async (request: any) => {
@@ -102,7 +102,7 @@ export default function VerifierDashboard() {
                         />
                         <SummaryCard
                             title="Total Volume"
-                            value={`${formatCarbonAmount(requests.reduce((sum, r) => sum + r.amount, 0))} tCO₂e`}
+                            value={`${formatCarbonAmount(requests.reduce((sum, r) => sum + (r.carbonCreditsCalculated || 0), 0))} tCO₂e`}
                             subtitle="All submissions"
                             icon={FileText}
                         />
@@ -143,12 +143,12 @@ export default function VerifierDashboard() {
                                                 {request.status !== "PENDING" && <span className="ml-2 text-xs text-muted-foreground">({request.status})</span>}
                                             </TableCell>
                                             <TableCell>{request.organizationName}</TableCell>
-                                            <TableCell>{formatCarbonAmount(request.amount)} tCO₂e</TableCell>
+                                            <TableCell>{formatCarbonAmount(request.carbonCreditsCalculated || 0)} tCO₂e</TableCell>
                                             <TableCell className="text-muted-foreground">
-                                                {formatDate(request.submittedDate)}
+                                                {formatDate(request.createdAt)}
                                             </TableCell>
                                             <TableCell>
-                                                {request.location && request.status === "PENDING" ? (
+                                                {request.status === "PENDING" ? (
                                                     <Button
                                                         variant="secondary"
                                                         size="sm"

@@ -9,7 +9,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${SUPABASE_URL}/auth/v1/jwks
+          jwk-set-uri: ${SUPABASE_URL:https://gsknnyenbdrxovifcvxp.supabase.co}/auth/v1/jwks
 
   cloud:
     gateway:
@@ -27,36 +27,50 @@ spring:
           uri: lb://user-identity-service
           predicates:
             - Path=/api/users/**
+          filters:
+            - TokenRelay
 
         - id: organization-service
           uri: lb://organization-service
           predicates:
             - Path=/api/organizations/**
+          filters:
+            - TokenRelay
 
         - id: emission-reporting-service
           uri: lb://emission-reporting-service
           predicates:
             - Path=/api/emissions/**
+          filters:
+            - TokenRelay
 
         - id: verification-service
           uri: lb://verification-service
           predicates:
             - Path=/api/verifications/**
+          filters:
+            - TokenRelay
 
         - id: credit-issuance-service
           uri: lb://credit-issuance-service
           predicates:
             - Path=/api/credits/**
+          filters:
+            - TokenRelay
 
         - id: trading-service
           uri: lb://trading-service
           predicates:
             - Path=/api/trading/**, /api/transactions/**
+          filters:
+            - TokenRelay
 
         - id: audit-ledger-service
           uri: lb://audit-ledger-service
           predicates:
             - Path=/api/audit/**
+          filters:
+            - TokenRelay
 
         - id: notification-service-ws
           uri: lb://notification-service

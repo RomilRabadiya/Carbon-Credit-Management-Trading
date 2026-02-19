@@ -149,6 +149,7 @@ public class VerificationService {
                 .reportId(verification.getReportId())
                 .projectId(verification.getProjectId())
                 .organizationId(verification.getOrganizationId())
+                .verifierId(0L) // No user context in service-side call; sentinel value prevents NPE in audit
                 .status(verification.getStatus())
                 .carbonCreditsCalculated(verification.getCarbonCreditsCalculated())
                 .remarks(verification.getRemarks())

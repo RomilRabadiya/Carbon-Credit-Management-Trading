@@ -62,6 +62,25 @@ export function useAuth() {
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
 
+  const checkSession = useCallback(async () => {
+    dispatch(setLoading(true));
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      const user: User = {
+        id: session.user.id,
+        email: session.user.email!,
+        name: session.user.user_metadata.name || "User",
+        role: session.user.user_metadata.role || "USER",
+        organizationId: session.user.user_metadata.organizationId,
+      };
+      dispatch(loginSuccess({ user, token: session.access_token }));
+    } else {
+      dispatch(logoutAction());
+    }
+    dispatch(setLoading(false));
+  }, [dispatch]);
+
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     dispatch(logoutAction());
@@ -70,6 +89,7 @@ export function useAuth() {
 
   return {
     ...auth,
+    checkSession,
     logout,
   };
 }

@@ -55,11 +55,11 @@ const verificationSlice = createSlice({
                 state.error = action.error.message || "Failed to fetch requests";
             })
             .addCase(approveRequest.fulfilled, (state, action) => {
-                const req = state.requests.find((r) => r.id === action.payload);
+                const req = state.requests.find((r) => r.id === Number(action.payload));
                 if (req) req.status = "APPROVED";
             })
             .addCase(rejectRequest.fulfilled, (state, action) => {
-                const req = state.requests.find((r) => r.id === action.payload);
+                const req = state.requests.find((r) => r.id === Number(action.payload));
                 if (req) req.status = "REJECTED";
             });
     },

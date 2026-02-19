@@ -22,8 +22,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "carbon_credits", indexes = {
         @Index(name = "idx_owner_org", columnList = "owner_id"),
-        @Index(name = "idx_batch_id", columnList = "creditBatchId"),
-        @Index(name = "idx_report_id", columnList = "reportId", unique = true),
         @Index(name = "idx_status", columnList = "status")
 })
 public class CarbonCredit {
@@ -32,7 +30,7 @@ public class CarbonCredit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String serialNumber; // ISO-Country-Project-Year-Seq
 
     @Column(name = "owner_id")

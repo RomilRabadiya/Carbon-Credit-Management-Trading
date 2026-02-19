@@ -13,9 +13,9 @@ public interface OrganizationClient {
     @org.springframework.web.bind.annotation.GetMapping("/api/organizations/{id}")
     ResponseEnvelope<Object> getOrganization(@PathVariable("id") Long id);
 
-    @PostMapping("/api/orgs/{id}/balance/deduct")
+    @PostMapping("/api/organizations/{id}/balance/deduct")
     ResponseEnvelope<Void> deductBalance(@PathVariable("id") Long id, @RequestBody BigDecimal amount);
 
-    @PostMapping("/api/orgs/{id}/balance/add")
+    @PostMapping("/api/organizations/{id}/balance/add")
     ResponseEnvelope<Void> addBalance(@PathVariable("id") Long id, @RequestBody BigDecimal amount);
 }

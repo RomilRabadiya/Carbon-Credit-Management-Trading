@@ -41,7 +41,6 @@ public class CreditController {
     }
 
     @PostMapping("/issue")
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('VERIFIER')")
     public ResponseEntity<Void> issueCredits(@RequestBody Map<String, Object> request) {
         log.info("Received credit issuance request: {}", request);
         // ... (rest of logic)
