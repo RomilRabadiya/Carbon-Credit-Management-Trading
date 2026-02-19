@@ -153,12 +153,45 @@ public class TradingService {
             throw new IllegalStateException("Credit is already listed");
         }
 
-        // 3. Create Listing
+        // 3. Derive vintage from issuance date
+        String vintage = credit.getIssuanceDate() != null
+                ? String.valueOf(credit.getIssuanceDate().getYear())
+                : "N/A";
+
+        // 4. Fetch seller's organization name for display
+        String sellerName = "Unknown";
+        try {
+            com.carboncredit.common.dto.ResponseEnvelope<Object> orgResponse = organizationClient
+                    .getOrganization(sellerId);
+            if (orgResponse != null && orgResponse.getData() != null) {
+                java.util.Map<String, Object> orgData = (java.util.Map<String, Object>) orgResponse.getData();
+                sellerName = (String) orgData.getOrDefault("name", "Unknown");
+            }
+        } catch (Exception e) {
+            log.warn("Could not fetch organization name for seller {}: {}", sellerId, e.getMessage());
+        }
+
+        // 5. Build location string from credit's lat/lon
+        String location = null;
+        if (credit.getLatitude() != null && credit.getLongitude() != null) {
+            location = String.format("Lat %.4f, Lon %.4f", credit.getLatitude(), credit.getLongitude());
+        }
+
+        // 6. Create Listing with snapshot fields for marketplace display
         com.carboncredit.tradingservice.model.Listing listing = com.carboncredit.tradingservice.model.Listing.builder()
                 .creditId(creditId)
                 .sellerId(sellerId)
                 .pricePerUnit(price)
                 .status(com.carboncredit.tradingservice.model.ListingStatus.ACTIVE)
+                // Snapshot fields (denormalized for fast marketplace queries)
+                .sellerName(sellerName)
+                .amount(credit.getAmount() != null
+                        ? java.math.BigDecimal.valueOf(credit.getAmount())
+                        : java.math.BigDecimal.ZERO)
+                .serialNumber(credit.getSerialNumber())
+                .projectType(credit.getProjectType())
+                .location(location)
+                .vintage(vintage)
                 .build();
 
         return listingRepository.save(listing);

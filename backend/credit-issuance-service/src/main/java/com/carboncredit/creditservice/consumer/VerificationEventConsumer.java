@@ -13,7 +13,7 @@ public class VerificationEventConsumer {
     // Keeping class shell to avoid breaking component scan if needed, or could be
     // deleted.
 
-    @KafkaListener(topics = "${kafka.topic.verification-completed:verification-completed-topic}", groupId = "credit-issuance-group")
+    @KafkaListener(topics = "${kafka.topic.verification-completed:EMISSION_VERIFIED}", groupId = "credit-issuance-group")
     public void handleVerificationCompleted(VerificationCompletedEvent event) {
         log.info("Received VerificationCompletedEvent: {}", event);
         // Logic removed: Credit Issuance is now handled synchronously via API.

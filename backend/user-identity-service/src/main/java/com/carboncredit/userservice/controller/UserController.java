@@ -40,8 +40,28 @@ public class UserController {
     public ResponseEnvelope<User> getCurrentUser(
             @org.springframework.security.core.annotation.AuthenticationPrincipal org.springframework.security.oauth2.jwt.Jwt jwt) {
         String email = jwt.getClaimAsString("email");
+
+        // Extract from user_metadata if available (Supabase standard)
         String name = jwt.getClaimAsString("name");
         String picture = jwt.getClaimAsString("picture");
+
+        java.util.Map<String, Object> userMetadata = jwt.getClaim("user_metadata");
+        if (userMetadata != null) {
+            if (name == null) {
+                name = (String) userMetadata.get("full_name"); // Common Supabase/Google mapping
+                if (name == null)
+                    name = (String) userMetadata.get("name");
+            }
+            if (picture == null) {
+                picture = (String) userMetadata.get("avatar_url"); // Common Supabase/Google mapping
+                if (picture == null)
+                    picture = (String) userMetadata.get("picture");
+            }
+        }
+
+        // Fallback if still null
+        if (name == null)
+            name = "User";
 
         return ResponseEnvelope.success(service.getOrCreateUser(email, name, picture), "Current user retrieved");
     }

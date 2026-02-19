@@ -1,6 +1,6 @@
 package com.carboncredit.emissionservice.service;
 
-import com.carboncredit.emissionservice.event.EmissionReportedEvent;
+import com.carboncredit.common.event.EmissionReportedEvent;
 import com.carboncredit.emissionservice.dao.EmissionReportDAO;
 import com.carboncredit.emissionservice.dto.ReportRequestDto;
 import com.carboncredit.emissionservice.model.EmissionReport;

@@ -1,6 +1,6 @@
 package com.carboncredit.creditservice.config;
 
-import com.carboncredit.creditservice.event.VerificationCompletedEvent;
+import com.carboncredit.common.event.VerificationCompletedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

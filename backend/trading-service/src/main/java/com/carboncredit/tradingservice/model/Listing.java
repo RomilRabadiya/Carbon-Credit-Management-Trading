@@ -39,6 +39,14 @@ public class Listing {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    // === Denormalized snapshot fields (populated at listing creation) ===
+    private String sellerName; // From User/Org service
+    private BigDecimal amount; // From CarbonCredit.amount
+    private String serialNumber; // From CarbonCredit.serialNumber
+    private String projectType; // From CarbonCredit (traced from EmissionReport)
+    private String location; // Human-readable location
+    private String vintage; // Year derived from issuanceDate
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

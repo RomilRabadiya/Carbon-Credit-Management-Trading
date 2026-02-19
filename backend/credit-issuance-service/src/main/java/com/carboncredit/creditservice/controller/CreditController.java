@@ -19,6 +19,27 @@ public class CreditController {
         this.creditIssuanceService = creditIssuanceService;
     }
 
+    @GetMapping("/organization/{organizationId}")
+    public ResponseEntity<com.carboncredit.creditservice.dto.CreditListResponseDTO> getCreditsByOrganization(
+            @PathVariable String organizationId) {
+        return ResponseEntity.ok(creditIssuanceService.getCreditsByOrganization(organizationId));
+    }
+
+    /**
+     * Get a single credit by its ID.
+     * Used by Trading Service (via Feign) to fetch credit details for listing
+     * enrichment.
+     */
+    @GetMapping("/{creditId}")
+    public ResponseEntity<com.carboncredit.creditservice.dto.CarbonCreditDTO> getCreditById(
+            @PathVariable Long creditId) {
+        try {
+            return ResponseEntity.ok(creditIssuanceService.getCreditById(creditId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/issue")
     @org.springframework.security.access.prepost.PreAuthorize("hasRole('VERIFIER')")
     public ResponseEntity<Void> issueCredits(@RequestBody Map<String, Object> request) {
@@ -27,8 +48,11 @@ public class CreditController {
         Long projectId = ((Number) request.get("projectId")).longValue();
         BigDecimal amount = new BigDecimal(request.get("amount").toString());
         Long ownerId = ((Number) request.get("ownerId")).longValue();
+        String projectType = (String) request.getOrDefault("projectType", "UNKNOWN");
+        Double latitude = request.get("latitude") != null ? ((Number) request.get("latitude")).doubleValue() : null;
+        Double longitude = request.get("longitude") != null ? ((Number) request.get("longitude")).doubleValue() : null;
 
-        creditIssuanceService.issueCredits(projectId, amount, ownerId);
+        creditIssuanceService.issueCredits(projectId, amount, ownerId, projectType, latitude, longitude);
         return ResponseEntity.ok().build();
     }
 

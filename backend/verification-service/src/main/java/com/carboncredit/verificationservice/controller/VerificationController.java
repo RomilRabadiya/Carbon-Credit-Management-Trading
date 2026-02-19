@@ -46,4 +46,15 @@ public class VerificationController {
 
         return ResponseEntity.ok(verificationService.approveVerification(id, remarks));
     }
+
+    @PostMapping("/{id}/reject")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('VERIFIER')")
+    public ResponseEntity<VerificationRequest> rejectVerification(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> request) {
+
+        String remarks = (String) request.getOrDefault("remarks", "Manually rejected");
+
+        return ResponseEntity.ok(verificationService.rejectVerification(id, remarks));
+    }
 }

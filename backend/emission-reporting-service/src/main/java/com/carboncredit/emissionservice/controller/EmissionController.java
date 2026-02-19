@@ -17,7 +17,6 @@ public class EmissionController {
     private final EmissionService service;
 
     @PostMapping
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('COMPANY')")
     public ResponseEnvelope<EmissionReport> submitReport(
             @RequestBody com.carboncredit.emissionservice.dto.ReportRequestDto request) {
         return ResponseEnvelope.success(service.submitReport(request), "Emission report submitted successfully");

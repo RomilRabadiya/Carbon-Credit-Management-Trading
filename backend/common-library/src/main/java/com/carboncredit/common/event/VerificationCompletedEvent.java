@@ -21,5 +21,8 @@ public class VerificationCompletedEvent extends BaseEvent {
     private Long verifierId;
     private String status; // APPROVED, REJECTED
     private BigDecimal carbonCreditsCalculated;
+    private String projectType;
+    private Double latitude;
+    private Double longitude;
     private String remarks;
 }

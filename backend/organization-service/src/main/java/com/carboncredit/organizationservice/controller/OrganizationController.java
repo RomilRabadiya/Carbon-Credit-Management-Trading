@@ -40,8 +40,7 @@ public class OrganizationController {
     }
 
     @PostMapping("/{id}/balance/add")
-    // Secured: Faucet for Demo (Authorized Users) or Internal
-    @org.springframework.security.access.prepost.PreAuthorize("isAuthenticated()")
+    // Gateway handles authentication
     public ResponseEnvelope<Void> addBalance(@PathVariable Long id, @RequestBody java.math.BigDecimal amount) {
         service.addBalance(id, amount);
         return ResponseEnvelope.success(null, "Balance added");

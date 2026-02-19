@@ -1,8 +1,10 @@
 package com.carboncredit.notificationservice.listener;
 
-import com.carboncredit.notificationservice.event.CreditIssuedEvent;
-import com.carboncredit.notificationservice.event.EmissionReportedEvent;
-import com.carboncredit.notificationservice.event.VerificationCompletedEvent;
+import com.carboncredit.common.event.CreditIssuedEvent;
+import com.carboncredit.common.event.CreditRetiredEvent;
+import com.carboncredit.common.event.EmissionReportedEvent;
+import com.carboncredit.common.event.TradeCompletedEvent;
+import com.carboncredit.common.event.VerificationCompletedEvent;
 import com.carboncredit.notificationservice.service.NotificationMessagingService;
 
 import org.springframework.kafka.annotation.KafkaListener;
@@ -36,5 +38,17 @@ public class NotificationEventListener {
     public void handleCreditIssued(CreditIssuedEvent event) {
         log.info("Received CreditIssuedEvent: {}", event);
         messagingService.sendNotification("/topic/credits", event);
+    }
+
+    @KafkaListener(topics = "credit-retired-topic", groupId = "notification-service-group")
+    public void handleCreditRetired(CreditRetiredEvent event) {
+        log.info("Received CreditRetiredEvent: {}", event);
+        messagingService.sendNotification("/topic/retirements", event);
+    }
+
+    @KafkaListener(topics = "trade-completed-topic", groupId = "notification-service-group")
+    public void handleTradeCompleted(TradeCompletedEvent event) {
+        log.info("Received TradeCompletedEvent: {}", event);
+        messagingService.sendNotification("/topic/trades", event);
     }
 }

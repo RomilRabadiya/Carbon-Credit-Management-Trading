@@ -1,6 +1,6 @@
 package com.carboncredit.verificationservice.service;
 
-import com.carboncredit.verificationservice.event.VerificationCompletedEvent;
+import com.carboncredit.common.event.VerificationCompletedEvent;
 import com.carboncredit.verificationservice.model.VerificationRequest;
 import com.carboncredit.verificationservice.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -102,21 +102,48 @@ public class VerificationService {
             creditClient.issueCredits(Map.of(
                     "projectId", saved.getProjectId(),
                     "amount", saved.getCarbonCreditsCalculated(),
-                    "ownerId", saved.getOrganizationId()));
+                    "ownerId", saved.getOrganizationId(),
+                    "projectType", report.getProjectType(),
+                    "latitude", report.getLatitude(),
+                    "longitude", report.getLongitude())); // Pass lat/lon
             log.info("Credit issuance initiated successfully.");
         } catch (Exception e) {
             log.error("Failed to call Credit Issuance Service", e);
             throw new RuntimeException("Credit Issuance Failed", e);
         }
 
-        emitVerificationCompletedEvent(saved);
+        emitVerificationCompletedEvent(saved, report.getProjectType(),
+                report.getLatitude(), report.getLongitude());
+        return saved;
+    }
+
+    /**
+     * Manually reject a verification request
+     */
+    @SuppressWarnings("null")
+    public VerificationRequest rejectVerification(Long id, String remarks) {
+        VerificationRequest verification = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Verification not found"));
+
+        if (!"PENDING".equals(verification.getStatus())) {
+            throw new IllegalStateException("Verification is already " + verification.getStatus());
+        }
+
+        verification.setStatus("REJECTED");
+        verification.setRemarks(remarks);
+        verification.setVerifiedAt(LocalDateTime.now());
+
+        VerificationRequest saved = repository.save(verification);
+        log.info("Verification {} rejected. Reason: {}", id, remarks);
+
         return saved;
     }
 
     /**
      * Emit VerificationCompletedEvent to Kafka
      */
-    private void emitVerificationCompletedEvent(VerificationRequest verification) {
+    private void emitVerificationCompletedEvent(VerificationRequest verification, String projectType,
+            Double latitude, Double longitude) {
         VerificationCompletedEvent event = VerificationCompletedEvent.builder()
                 .verificationId(verification.getId())
                 .reportId(verification.getReportId())
@@ -125,6 +152,9 @@ public class VerificationService {
                 .status(verification.getStatus())
                 .carbonCreditsCalculated(verification.getCarbonCreditsCalculated())
                 .remarks(verification.getRemarks())
+                .projectType(projectType)
+                .latitude(latitude)
+                .longitude(longitude)
                 .eventType("VERIFICATION_COMPLETED")
                 .build();
 

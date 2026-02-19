@@ -18,4 +18,7 @@ public class CarbonCreditDTO {
     private Double amount;
     private String status;
     private LocalDateTime issuanceDate;
+    private String projectType;
+    private Double latitude;
+    private Double longitude;
 }

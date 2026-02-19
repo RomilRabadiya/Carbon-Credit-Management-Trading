@@ -21,9 +21,8 @@ public class KafkaConsumerConfig {
     @SuppressWarnings("null")
     public ConsumerFactory<String, Object> consumerFactory() {
         JsonDeserializer<Object> deserializer = new JsonDeserializer<>(Object.class);
-        // CRITICAL: Ignore the type headers sent by the producer (which point to
-        // common-library classes)
-        // This allows us to map the JSON to our LOCAL duplicated classes.
+        // Use common-library types for deserialization
+        // Headers are used to determine the target class
         deserializer.setRemoveTypeHeaders(false);
         deserializer.addTrustedPackages("*");
         deserializer.setUseTypeMapperForKey(true);

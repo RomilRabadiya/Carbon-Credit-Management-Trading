@@ -19,52 +19,107 @@ public class AuditEventListener {
     private final AuditDAO auditDAO;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "${kafka.topic.emission-reported:emission-topic}", groupId = "audit-service-group")
+    @KafkaListener(topics = "emission-topic", groupId = "audit-service-group")
     public void handleEmissionReported(EmissionReportedEvent event) {
-        saveAudit(event.getEventType(), event.getReportId().toString(), null, event,
-                event.getOrganizationId().toString());
-    }
-
-    @KafkaListener(topics = "${kafka.topic.verification-completed:verification-completed-topic}", groupId = "audit-service-group")
-    public void handleVerificationCompleted(VerificationCompletedEvent event) {
-        saveAudit("VERIFICATION_COMPLETED", event.getVerificationId().toString(), null, event,
-                event.getVerifierId().toString());
-    }
-
-    @KafkaListener(topics = "${kafka.topic.credit-issued:credit-issued-topic}", groupId = "audit-service-group")
-    public void handleCreditIssued(CreditIssuedEvent event) {
-        saveAudit(event.getEventType(), event.getCreditId().toString(), event.getSerialNumber(), event,
-                event.getOrganizationId().toString());
-    }
-
-    @KafkaListener(topics = "${kafka.topic.credit-retired:credit-retired-topic}", groupId = "audit-service-group")
-    public void handleCreditRetired(CreditRetiredEvent event) {
-        saveAudit(event.getEventType(), event.getCreditId().toString(), event.getSerialNumber(), event,
-                event.getOwnerId().toString());
-    }
-
-    @KafkaListener(topics = "${kafka.topic.trade-completed:trade-completed-topic}", groupId = "audit-service-group")
-    public void handleTradeCompleted(com.carboncredit.common.event.TradeCompletedEvent event) {
-        saveAudit("TRADE_COMPLETED", event.getCreditId().toString(), null, event,
-                "Seller:" + event.getSellerId() + ">Buyer:" + event.getBuyerId());
-    }
-
-    @SuppressWarnings("null")
-    private void saveAudit(String eventType, String entityId, String serialNumber, Object payload, String actor) {
         try {
-            String details = objectMapper.writeValueAsString(payload);
+            // explicit coding for better readability
+            String details = objectMapper.writeValueAsString(event);
+
             AuditRecord record = AuditRecord.builder()
-                    .eventType(eventType)
-                    .entityId(entityId)
-                    .serialNumber(serialNumber)
+                    .eventType(event.getEventType())
+                    .entityId(event.getReportId().toString())
+                    .actor(event.getOrganizationId().toString())
                     .details(details)
-                    .actor(actor)
                     .timestamp(LocalDateTime.now())
                     .build();
+
             auditDAO.save(record);
-            log.info("Audited event: {} for entity: {}", eventType, entityId);
+            log.info("Audited EMISSION_REPORTED event for report: {}", event.getReportId());
         } catch (Exception e) {
-            log.error("Failed to save audit record", e);
+            log.error("Error processing emission event", e);
+        }
+    }
+
+    @KafkaListener(topics = "EMISSION_VERIFIED", groupId = "audit-service-group")
+    public void handleVerificationCompleted(VerificationCompletedEvent event) {
+        try {
+            String details = objectMapper.writeValueAsString(event);
+
+            AuditRecord record = AuditRecord.builder()
+                    .eventType("VERIFICATION_COMPLETED")
+                    .entityId(event.getVerificationId().toString())
+                    .actor(event.getVerifierId().toString())
+                    .details(details)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            auditDAO.save(record);
+            log.info("Audited VERIFICATION_COMPLETED event for verification: {}", event.getVerificationId());
+        } catch (Exception e) {
+            log.error("Error processing verification event", e);
+        }
+    }
+
+    @KafkaListener(topics = "credit-issued-topic", groupId = "audit-service-group")
+    public void handleCreditIssued(CreditIssuedEvent event) {
+        try {
+            String details = objectMapper.writeValueAsString(event);
+
+            AuditRecord record = AuditRecord.builder()
+                    .eventType(event.getEventType())
+                    .entityId(event.getCreditId().toString())
+                    .serialNumber(event.getSerialNumber())
+                    .actor(event.getOrganizationId().toString())
+                    .details(details)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            auditDAO.save(record);
+            log.info("Audited CREDIT_ISSUED event for credit: {}", event.getCreditId());
+        } catch (Exception e) {
+            log.error("Error processing credit issuance event", e);
+        }
+    }
+
+    @KafkaListener(topics = "credit-retired-topic", groupId = "audit-service-group")
+    public void handleCreditRetired(CreditRetiredEvent event) {
+        try {
+            String details = objectMapper.writeValueAsString(event);
+
+            AuditRecord record = AuditRecord.builder()
+                    .eventType(event.getEventType())
+                    .entityId(event.getCreditId().toString())
+                    .serialNumber(event.getSerialNumber())
+                    .actor(event.getOwnerId().toString())
+                    .details(details)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            auditDAO.save(record);
+            log.info("Audited CREDIT_RETIRED event for credit: {}", event.getCreditId());
+        } catch (Exception e) {
+            log.error("Error processing credit retirement event", e);
+        }
+    }
+
+    @KafkaListener(topics = "trade-completed-topic", groupId = "audit-service-group")
+    public void handleTradeCompleted(com.carboncredit.common.event.TradeCompletedEvent event) {
+        try {
+            String details = objectMapper.writeValueAsString(event);
+            String actor = "Seller:" + event.getSellerId() + ">Buyer:" + event.getBuyerId();
+
+            AuditRecord record = AuditRecord.builder()
+                    .eventType("TRADE_COMPLETED")
+                    .entityId(event.getCreditId().toString())
+                    .actor(actor)
+                    .details(details)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            auditDAO.save(record);
+            log.info("Audited TRADE_COMPLETED event for credit: {}", event.getCreditId());
+        } catch (Exception e) {
+            log.error("Error processing trade event", e);
         }
     }
 }

@@ -28,10 +28,14 @@ public class CreditIssuanceService {
     private String creditIssuedTopic;
 
     @Transactional
-    public void issueCredits(Long projectId, BigDecimal amount, Long ownerId) {
+    public void issueCredits(Long projectId, BigDecimal amount, Long ownerId, String projectType,
+            Double latitude, Double longitude) {
         CarbonCredit credit = new CarbonCredit();
         credit.setAmount(amount);
         credit.setOwnerId(ownerId);
+        credit.setProjectType(projectType);
+        credit.setLatitude(latitude);
+        credit.setLongitude(longitude);
         credit.setStatus("ISSUED");
         credit.setIssuanceDate(LocalDateTime.now());
         credit.setExpiryDate(LocalDateTime.now().plusYears(10));
@@ -76,6 +80,9 @@ public class CreditIssuanceService {
         credit.setStatus("ACTIVE");
         credit.setIssuanceDate(LocalDateTime.now());
         credit.setExpiryDate(LocalDateTime.now().plusYears(10));
+        credit.setProjectType(event.getProjectType()); // Set from Event
+        credit.setLatitude(event.getLatitude());
+        credit.setLongitude(event.getLongitude());
 
         creditDAO.save(credit);
         log.info("Minted Carbon Credit: {} for Owner: {}", serialNumber, event.getOrganizationId());
@@ -124,7 +131,10 @@ public class CreditIssuanceService {
                 credit.getAmount(),
                 credit.getStatus(),
                 credit.getVerificationId(),
-                credit.getIssuanceDate());
+                credit.getIssuanceDate(),
+                credit.getProjectType(),
+                credit.getLatitude(),
+                credit.getLongitude());
     }
 
     @SuppressWarnings("null")

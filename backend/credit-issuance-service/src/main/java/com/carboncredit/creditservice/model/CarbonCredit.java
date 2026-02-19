@@ -61,6 +61,10 @@ public class CarbonCredit {
     private String retirementReason; // Why? (e.g. "2025 Operations")
     private LocalDateTime retirementDate; // When?
 
+    private String projectType; // Reforestation, Solar, etc.
+    private Double latitude;
+    private Double longitude;
+
     // Constructors
     public CarbonCredit() {
     }
@@ -168,5 +172,29 @@ public class CarbonCredit {
 
     public void setRetirementDate(LocalDateTime retirementDate) {
         this.retirementDate = retirementDate;
+    }
+
+    public String getProjectType() {
+        return projectType;
+    }
+
+    public void setProjectType(String projectType) {
+        this.projectType = projectType;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

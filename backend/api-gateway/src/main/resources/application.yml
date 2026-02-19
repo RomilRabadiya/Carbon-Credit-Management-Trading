@@ -7,31 +7,17 @@ spring:
   
   security:
     oauth2:
-      client:
-        registration:
-          google:
-            client-id: 708607407785-pokfj5e5kpnl3b91lodkv6rq4jmq119i.apps.googleusercontent.com
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: openid, profile, email
-            redirect-uri: "{baseUrl}/login/oauth2/code/google"
-        provider:
-          google:
-            issuer-uri: https://accounts.google.com
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${SUPABASE_URL}/auth/v1/jwks
 
   cloud:
     gateway:
-      default-filters:
-        - AddIdTokenHeader
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: oauth2-login
-          uri: lb://user-identity-service
-          predicates:
-            - Path=/login/**, /oauth2/**
-        
         - id: auth-service
           uri: lb://user-identity-service
           predicates:
@@ -71,6 +57,11 @@ spring:
           uri: lb://audit-ledger-service
           predicates:
             - Path=/api/audit/**
+
+        - id: notification-service-ws
+          uri: lb://notification-service
+          predicates:
+            - Path=/ws/**
 
 
         - id: geo-service

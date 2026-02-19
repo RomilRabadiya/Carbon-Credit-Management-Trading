@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
+/* CarbonLedger Design System
+   Professional, minimal SaaS palette
+   Accent: Deep teal-green for sustainability/trust
+*/
+
+@layer base {
+  :root {
+    /* Base surfaces */
+    --background: 0 0% 98%;
+    --foreground: 220 13% 18%;
+
+    /* Card surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+
+    /* Popover/Dropdown */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+
+    /* Primary: Deep teal-green (sustainability accent) */
+    --primary: 168 64% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Subtle gray for secondary actions */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 28%;
+
+    /* Muted: For subtle backgrounds and text */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent: Light teal for hover states */
+    --accent: 168 45% 94%;
+    --accent-foreground: 168 64% 25%;
+
+    /* Destructive: Calm red for warnings */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success: For active/positive states */
+    --success: 152 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning: For pending states */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 168 64% 32%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar */
+    --sidebar-background: 220 14% 10%;
+    --sidebar-foreground: 220 9% 80%;
+    --sidebar-primary: 168 64% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 16%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 14% 18%;
+    --sidebar-ring: 168 64% 42%;
+    --sidebar-muted: 220 9% 50%;
+  }
+
+  .dark {
+    --background: 220 14% 8%;
+    --foreground: 220 9% 94%;
+
+    --card: 220 14% 11%;
+    --card-foreground: 220 9% 94%;
+
+    --popover: 220 14% 11%;
+    --popover-foreground: 220 9% 94%;
+
+    --primary: 168 55% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 220 9% 80%;
+
+    --muted: 220 14% 16%;
+    --muted-foreground: 220 9% 55%;
+
+    --accent: 220 14% 18%;
+    --accent-foreground: 168 55% 50%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 55% 38%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 85% 48%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 14% 20%;
+    --input: 220 14% 20%;
+    --ring: 168 55% 45%;
+
+    --sidebar-background: 220 14% 6%;
+    --sidebar-foreground: 220 9% 75%;
+    --sidebar-primary: 168 55% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 12%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 14% 14%;
+    --sidebar-ring: 168 55% 45%;
+    --sidebar-muted: 220 9% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
