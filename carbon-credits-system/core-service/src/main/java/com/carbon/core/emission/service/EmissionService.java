@@ -3,6 +3,8 @@ package com.carbon.core.emission.service;
 import com.carbon.core.emission.dto.ReportRequestDto;
 import com.carbon.core.emission.model.EmissionReport;
 import com.carbon.core.emission.repository.EmissionReportRepository;
+import com.carbon.core.verification.model.VerificationRequest;
+import com.carbon.core.verification.repository.VerificationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -14,13 +16,17 @@ import java.time.LocalDateTime;
 public class EmissionService {
 
     private final EmissionReportRepository repository;
+    private final VerificationRepository verificationRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${kafka.topic.emission-reported:emission-topic}")
     private String emissionReportedTopic;
 
-    public EmissionService(EmissionReportRepository repository, KafkaTemplate<String, Object> kafkaTemplate) {
+    public EmissionService(EmissionReportRepository repository,
+            VerificationRepository verificationRepository,
+            KafkaTemplate<String, Object> kafkaTemplate) {
         this.repository = repository;
+        this.verificationRepository = verificationRepository;
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -56,6 +62,21 @@ public class EmissionService {
                 .build();
 
         EmissionReport saved = repository.save(report);
+
+        // AUTO-CREATE a VerificationRequest so verifiers can see it immediately
+        try {
+            VerificationRequest vr = new VerificationRequest();
+            vr.setReportId(saved.getId());
+            vr.setProjectId(saved.getProjectId());
+            // Use userId as organizationId proxy until user-org mapping is in place
+            vr.setOrganizationId(userId);
+            vr.setStatus("PENDING");
+            vr.setCreatedAt(java.time.LocalDateTime.now());
+            verificationRepository.save(vr);
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to auto-create verification request for report " + saved.getId() + ": "
+                    + e.getMessage());
+        }
 
         try {
             com.carbon.core.event.EmissionReportedEvent event = com.carbon.core.event.EmissionReportedEvent.builder()

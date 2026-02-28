@@ -4,6 +4,7 @@ import com.carbon.core.emission.dto.ReportRequestDto;
 import com.carbon.core.emission.model.EmissionReport;
 import com.carbon.core.emission.repository.EmissionReportRepository;
 import com.carbon.core.event.EmissionReportedEvent;
+import com.carbon.core.verification.repository.VerificationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,11 +31,14 @@ class EmissionServiceTest {
     @Mock
     private KafkaTemplate<String, Object> kafkaTemplate;
 
+    @Mock
+    private VerificationRepository verificationRepository;
+
     private EmissionService emissionService;
 
     @BeforeEach
     void setUp() {
-        emissionService = new EmissionService(repository, kafkaTemplate);
+        emissionService = new EmissionService(repository, verificationRepository, kafkaTemplate);
         ReflectionTestUtils.setField(emissionService, "emissionReportedTopic", "emission-topic");
     }
 

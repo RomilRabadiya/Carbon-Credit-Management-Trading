@@ -22,10 +22,18 @@ spring:
           uri: http://localhost:8081
           predicates:
             - Path=/api/users/**
-        - id: core-service
+        - id: core-service-emissions
           uri: http://localhost:8082
           predicates:
             - Path=/api/emissions/**
+        - id: core-service-credits
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/credits/**
+        - id: core-service-verifications
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/verifications/**
 
 eureka:
   client:
