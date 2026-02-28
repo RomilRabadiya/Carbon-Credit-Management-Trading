@@ -1,0 +1,16 @@
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\CarbonCoreServiceApplication.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\emission\controller\EmissionController.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\emission\dto\ReportRequestDto.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\emission\model\EmissionReport.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\emission\repository\EmissionReportRepository.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\emission\service\EmissionService.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\event\CreditRetiredEvent.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\event\EmissionReportedEvent.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\event\TradeCompletedEvent.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\event\VerificationCompletedEvent.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\trading\model\Listing.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carbon\core\trading\model\ListingStatus.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carboncredit\common\event\CreditRetiredEvent.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carboncredit\common\event\EmissionReportedEvent.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carboncredit\common\event\TradeCompletedEvent.java
+C:\Users\vrund\OneDrive\Desktop\carbon_credit_main_work\carbon-credits-system\core-service\src\main\java\com\carboncredit\common\event\VerificationCompletedEvent.java

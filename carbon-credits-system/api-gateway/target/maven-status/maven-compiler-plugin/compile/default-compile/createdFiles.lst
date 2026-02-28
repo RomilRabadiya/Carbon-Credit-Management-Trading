@@ -1,0 +1,4 @@
+filters\AuthenticationFilter.class
+com\carbon\gateway\ApiGatewayApplication.class
+com\carbon\gateway\config\SecurityConfig.class
+filters\AuthenticationFilter$Config.class

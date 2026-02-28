@@ -1,0 +1,13 @@
+com\carbon\user\controller\UserController.class
+com\carbon\user\model\Organization$OrganizationBuilder.class
+com\carbon\user\service\OrganizationService.class
+com\carbon\user\UserServiceApplication.class
+com\carbon\user\dto\CompleteProfileRequest.class
+com\carbon\user\dto\OrganizationRequest.class
+com\carbon\user\dto\RegisterUserRequest.class
+com\carbon\user\repository\OrganizationRepository.class
+com\carbon\user\controller\OrganizationController.class
+com\carbon\user\repository\UserRepository.class
+com\carbon\user\model\Organization.class
+com\carbon\user\model\User.class
+com\carbon\user\model\User$UserBuilder.class
