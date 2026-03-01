@@ -1,0 +1,24 @@
+package com.carbon.trade.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CarbonCreditDTO {
+    private Long id;
+    private String serialNumber;
+    private Long ownerId;
+    private Double amount;
+    private String status;
+    private LocalDateTime issuanceDate;
+    private String projectType;
+    private Double latitude;
+    private Double longitude;
+}

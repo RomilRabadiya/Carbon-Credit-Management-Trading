@@ -117,4 +117,33 @@ public class UserService {
         return repository.findAll();
     }
 
+    @Transactional
+    public void addBalance(Long userId, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
+        }
+        User user = getUser(userId);
+        if (user.getBalance() == null) {
+            user.setBalance(BigDecimal.ZERO);
+        }
+        user.setBalance(user.getBalance().add(amount));
+        repository.save(user);
+    }
+
+    @Transactional
+    public void deductBalance(Long userId, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
+        }
+        User user = getUser(userId);
+        if (user.getBalance() == null) {
+            user.setBalance(BigDecimal.ZERO);
+        }
+        if (user.getBalance().compareTo(amount) < 0) {
+            throw new IllegalStateException("Insufficient balance");
+        }
+        user.setBalance(user.getBalance().subtract(amount));
+        repository.save(user);
+    }
+
 }

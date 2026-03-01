@@ -77,4 +77,25 @@ public class UserController {
 
         return ResponseEntity.ok(service.getAllUsers());
     }
+
+    // Wallet Endpoints
+    @PostMapping("/{id}/balance/deduct")
+    public ResponseEntity<?> deductBalance(@PathVariable Long id, @RequestBody java.math.BigDecimal amount) {
+        try {
+            service.deductBalance(id, amount);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{id}/balance/add")
+    public ResponseEntity<?> addBalance(@PathVariable Long id, @RequestBody java.math.BigDecimal amount) {
+        try {
+            service.addBalance(id, amount);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+        }
+    }
 }

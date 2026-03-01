@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const API_BASE = 'http://localhost:8080';
+const TRADE_API_BASE = 'http://localhost:8083';
 
 const CreditsPage = ({ user }) => {
     const [credits, setCredits] = useState([]);
@@ -13,6 +14,11 @@ const CreditsPage = ({ user }) => {
     const [beneficiary, setBeneficiary] = useState('');
     const [reason, setReason] = useState('');
     const [retireLoading, setRetireLoading] = useState(false);
+
+    // For list modal
+    const [listModal, setListModal] = useState(null); // creditId being listed
+    const [listPrice, setListPrice] = useState('');
+    const [listLoading, setListLoading] = useState(false);
 
     const authHeader = () => ({
         'Content-Type': 'application/json',
@@ -52,9 +58,9 @@ const CreditsPage = ({ user }) => {
         setRetireLoading(true);
         setMsg(null);
         try {
-            const res = await fetch(`${API_BASE}/api/credits/${retireModal}/retire`, {
+            const res = await fetch(`${TRADE_API_BASE}/api/trading/retire/${retireModal}`, {
                 method: 'POST',
-                headers: authHeader(),
+                headers: { ...authHeader(), 'X-User-Id': user?.id?.toString() || "" },
                 body: JSON.stringify({ beneficiary, reason })
             });
             if (!res.ok) {
@@ -73,8 +79,36 @@ const CreditsPage = ({ user }) => {
         }
     };
 
+    const handleList = async () => {
+        if (!listPrice || isNaN(listPrice) || Number(listPrice) <= 0) {
+            setMsg({ type: 'error', text: 'Please enter a valid positive price.' });
+            return;
+        }
+        setListLoading(true);
+        setMsg(null);
+        try {
+            const res = await fetch(`${TRADE_API_BASE}/api/trading/list`, {
+                method: 'POST',
+                headers: { ...authHeader(), 'X-User-Id': user?.id?.toString() || "" },
+                body: JSON.stringify({ creditId: listModal, price: Number(listPrice) })
+            });
+            if (!res.ok) {
+                const errData = await res.json().catch(() => null);
+                throw new Error(errData?.message || `Listing failed (${res.status})`);
+            }
+            setMsg({ type: 'success', text: 'Credit successfully listed for sale!' });
+            setListModal(null);
+            setListPrice('');
+            fetchCredits();
+        } catch (e) {
+            setMsg({ type: 'error', text: e.message });
+        } finally {
+            setListLoading(false);
+        }
+    };
+
     const statusColors = {
-        ISSUED: '#2e7d32',
+        ACTIVE: '#2e7d32', // Was previously ISSUED
         LISTED: '#1565c0',
         SOLD: '#6a1b9a',
         RETIRED: '#c62828',
@@ -150,13 +184,21 @@ const CreditsPage = ({ user }) => {
                                 }}>
                                     {credit.status}
                                 </span>
-                                {credit.status === 'ISSUED' && (
-                                    <button
-                                        onClick={() => setRetireModal(credit.id)}
-                                        style={{ padding: '6px 14px', backgroundColor: '#c62828', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
-                                    >
-                                        Retire
-                                    </button>
+                                {credit.status === 'ACTIVE' && (
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            onClick={() => setListModal(credit.id)}
+                                            style={{ padding: '6px 14px', backgroundColor: '#1565c0', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
+                                        >
+                                            List for Sale
+                                        </button>
+                                        <button
+                                            onClick={() => setRetireModal(credit.id)}
+                                            style={{ padding: '6px 14px', backgroundColor: '#c62828', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
+                                        >
+                                            Retire
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -182,6 +224,28 @@ const CreditsPage = ({ user }) => {
                             <button onClick={() => setRetireModal(null)} style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', backgroundColor: 'white' }}>Cancel</button>
                             <button onClick={handleRetire} disabled={retireLoading} style={{ flex: 1, padding: '10px', backgroundColor: '#c62828', color: 'white', border: 'none', borderRadius: '8px', cursor: retireLoading ? 'not-allowed' : 'pointer', fontWeight: '600' }}>
                                 {retireLoading ? 'Retiring...' : 'Confirm Retire'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* List for Sale Modal */}
+            {listModal && (
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+                    <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '16px', width: '100%', maxWidth: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+                        <h3 style={{ marginTop: 0 }}>List Credit #{listModal} for Sale</h3>
+                        <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Enter the price per tonne of CO₂e for this credit.</p>
+
+                        <div style={{ marginBottom: '16px' }}>
+                            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Price ($ USD)</label>
+                            <input type="number" step="0.01" min="0" value={listPrice} onChange={e => setListPrice(e.target.value)} placeholder="e.g. 50.00" style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button onClick={() => { setListModal(null); setListPrice(''); }} style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', backgroundColor: 'white' }}>Cancel</button>
+                            <button onClick={handleList} disabled={listLoading} style={{ flex: 1, padding: '10px', backgroundColor: '#1565c0', color: 'white', border: 'none', borderRadius: '8px', cursor: listLoading ? 'not-allowed' : 'pointer', fontWeight: '600' }}>
+                                {listLoading ? 'Listing...' : 'Confirm Listing'}
                             </button>
                         </div>
                     </div>

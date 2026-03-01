@@ -38,4 +38,7 @@ public class User {
 
     private Long organizationId;
 
+    @Builder.Default
+    private java.math.BigDecimal balance = java.math.BigDecimal.ZERO;
+
 }

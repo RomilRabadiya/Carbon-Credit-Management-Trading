@@ -3,6 +3,7 @@ import { Leaf, LogOut } from 'lucide-react';
 import EmissionReportForm from './EmissionReportForm';
 import CreditsPage from './CreditsPage';
 import VerificationsPage from './VerificationsPage';
+import Marketplace from './Marketplace';
 
 // Decode JWT payload (no verification — just for UI use)
 const parseJwtRole = (token) => {
@@ -73,6 +74,7 @@ const Dashboard = ({ user, onLogout, onUpdateUser }) => {
         { id: 'home', label: '🏠 Home', show: true },
         { id: 'report', label: '📊 Submit Emission', show: userRole === 'ORGANIZATION' || userRole === 'ADMIN' },
         { id: 'credits', label: '🌿 My Credits', show: userRole === 'ORGANIZATION' || userRole === 'ADMIN' },
+        { id: 'marketplace', label: '🛒 Marketplace', show: true },
         { id: 'verifications', label: '🔍 Verifications', show: userRole === 'VERIFIER' || userRole === 'ORGANIZATION' || userRole === 'ADMIN' },
         { id: 'profile', label: '👤 Profile', show: true },
     ].filter(item => item.show);
@@ -186,6 +188,11 @@ const Dashboard = ({ user, onLogout, onUpdateUser }) => {
                 {/* Verifications */}
                 {currentView === 'verifications' && (
                     <VerificationsPage user={user} userRole={userRole} />
+                )}
+
+                {/* Marketplace */}
+                {currentView === 'marketplace' && (
+                    <Marketplace user={user} />
                 )}
 
                 {/* Profile */}
