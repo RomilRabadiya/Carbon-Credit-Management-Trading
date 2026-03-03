@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Leaf, LogOut } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Leaf, LogOut, Bell } from 'lucide-react';
 import EmissionReportForm from './EmissionReportForm';
 import CreditsPage from './CreditsPage';
 import VerificationsPage from './VerificationsPage';
@@ -24,6 +24,50 @@ const Dashboard = ({ user, onLogout, onUpdateUser }) => {
     const [orgContactEmail, setOrgContactEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState({ type: '', text: '' });
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
+
+    useEffect(() => {
+        if (!user || typeof user.id === 'undefined' || user.id === null) return;
+
+        let ws = null;
+        try {
+            ws = new WebSocket(`ws://localhost:8084/ws/notifications?userId=${user.id}`);
+
+            ws.onopen = () => {
+                // Silencing connection log
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const notification = JSON.parse(event.data);
+                    // Silencing notification log
+                    setNotifications(prev => [notification, ...prev]);
+                } catch (error) {
+                    console.error('Failed to parse notification:', event.data);
+                }
+            };
+
+            ws.onerror = (error) => {
+                // Silenced error log to reduce prints
+            };
+
+            ws.onclose = () => {
+                // Silencing disconnection log
+            };
+        } catch (error) {
+            console.error('Dashboard Socket Init Failed');
+        }
+
+        return () => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            } else if (ws) {
+                // Prevent ghost connections from dropping incorrectly 
+                ws.onopen = () => ws.close();
+            }
+        };
+    }, [user?.id]);
 
     // Parse role from token
     const userRole = useMemo(() => {
@@ -129,6 +173,51 @@ const Dashboard = ({ user, onLogout, onUpdateUser }) => {
                     <span style={{ color: 'var(--eco-text-secondary)', fontSize: '0.875rem' }}>
                         {user?.name || user?.email}
                     </span>
+
+                    {/* Notifications Dropdown */}
+                    <div style={{ position: 'relative' }}>
+                        <button
+                            onClick={() => setShowNotifications(!showNotifications)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center', padding: '0 8px' }}
+                        >
+                            <Bell size={20} color="#475569" />
+                            {notifications.length > 0 && (
+                                <span style={{
+                                    position: 'absolute', top: '-5px', right: '0px', background: '#e53e3e', color: 'white',
+                                    borderRadius: '50%', padding: '2px 6px', fontSize: '10px', fontWeight: 'bold'
+                                }}>
+                                    {notifications.length}
+                                </span>
+                            )}
+                        </button>
+
+                        {showNotifications && (
+                            <div style={{
+                                position: 'absolute', top: '100%', right: '0', marginTop: '10px',
+                                width: '300px', background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                borderRadius: '12px', zIndex: 1000, overflow: 'hidden'
+                            }}>
+                                <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', fontWeight: '600', backgroundColor: '#f8fafc' }}>
+                                    Notifications
+                                </div>
+                                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                    {notifications.length === 0 ? (
+                                        <div style={{ padding: '16px', textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
+                                            No recent notifications.
+                                        </div>
+                                    ) : (
+                                        notifications.map((notif, idx) => (
+                                            <div key={idx} style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', fontSize: '0.875rem' }}>
+                                                <strong style={{ display: 'block', color: '#1e293b', marginBottom: '4px' }}>{notif.title}</strong>
+                                                <span style={{ color: '#475569' }}>{notif.message}</span>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         onClick={onLogout}
                         style={{

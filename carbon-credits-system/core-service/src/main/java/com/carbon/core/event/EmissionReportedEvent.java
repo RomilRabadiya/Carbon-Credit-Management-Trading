@@ -12,6 +12,7 @@ public class EmissionReportedEvent {
     private Long reportId;
     private Long projectId;
     private Long userId;
+    private Long organizationId; // Added: used by NotificationEventListener to route WS push
     private BigDecimal carbonAmount;
     private String unit;
     private String description;

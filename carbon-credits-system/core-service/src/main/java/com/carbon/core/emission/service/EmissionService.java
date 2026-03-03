@@ -83,6 +83,7 @@ public class EmissionService {
                     .reportId(saved.getId())
                     .projectId(saved.getProjectId())
                     .userId(saved.getUserId())
+                    .organizationId(saved.getUserId()) // userId is used as org proxy; listener extracts this
                     .carbonAmount(saved.getCalculatedEmission())
                     .unit("TONNE_CO2E")
                     .description("Emission Report for Project " + saved.getProjectId())

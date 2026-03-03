@@ -1,0 +1,28 @@
+# Maven build output
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Log files
+*.log
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.DS_Store
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Environment / secrets
+.env
+application-local.yml
+application-local.properties
+
+# OS
+Thumbs.db

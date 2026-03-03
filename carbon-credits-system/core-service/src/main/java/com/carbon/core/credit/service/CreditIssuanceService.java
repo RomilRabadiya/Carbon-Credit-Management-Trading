@@ -33,7 +33,7 @@ public class CreditIssuanceService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @Value("${kafka.topic.credit-issued:credit.issued}")
+    @Value("${kafka.topic.credit-issued:credit-issued-topic}")
     private String creditIssuedTopic;
 
     // =========================================
