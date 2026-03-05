@@ -13,6 +13,7 @@ import EmissionReportForm from './pages/EmissionReportForm';
 import CreditsPage from './pages/CreditsPage';
 import Marketplace from './pages/Marketplace';
 import VerificationsPage from './pages/VerificationsPage';
+import AuditLedgerPage from './pages/AuditLedgerPage';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -65,6 +66,7 @@ function App() {
           <Route path="credits" element={<CreditsPage user={currentUser} />} />
           <Route path="marketplace" element={<Marketplace user={currentUser} />} />
           <Route path="verifications" element={<VerificationsPage user={currentUser} userRole={currentUser?.role} />} />
+          <Route path="audit-ledger" element={<AuditLedgerPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Routes>

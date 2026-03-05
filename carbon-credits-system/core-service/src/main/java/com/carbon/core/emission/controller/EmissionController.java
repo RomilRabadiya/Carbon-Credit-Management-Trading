@@ -19,8 +19,12 @@ public class EmissionController {
     @PostMapping
     public ResponseEntity<EmissionReport> submitReport(
             @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader(value = "X-Organization-Id", required = false) Long orgId,
             @RequestBody ReportRequestDto request) {
-        return ResponseEntity.ok(service.submitReport(userId, request));
+        
+        // If orgId is missing from headers, fallback to userId for backwards compatibility
+        Long effectiveOrgId = (orgId != null) ? orgId : userId;
+        return ResponseEntity.ok(service.submitReport(userId, effectiveOrgId, request));
     }
 
     @GetMapping("/{id}")

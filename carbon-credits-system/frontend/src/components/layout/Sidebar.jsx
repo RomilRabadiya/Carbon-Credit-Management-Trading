@@ -10,6 +10,7 @@ export default function Sidebar({ userRole }) {
         { path: '/credits', label: 'My Credits', show: userRole === 'ORGANIZATION' },
         { path: '/marketplace', label: 'Marketplace', show: true },
         { path: '/verifications', label: 'Verifications', show: userRole === 'VERIFIER' },
+        { path: '/audit-ledger', label: 'Audit Ledger', show: true },
         { path: '/profile', label: 'Profile', show: true },
     ].filter(item => item.show);
 

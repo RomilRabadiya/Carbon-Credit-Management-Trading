@@ -1,9 +1,9 @@
 server:
-  port: 8082
+  port: 8086
 
 spring:
   application:
-    name: core-service
+    name: audit-ledger-service
   datasource:
     url: jdbc:postgresql://ep-cold-fog-a13rf1hh-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
     username: neondb_owner
@@ -19,15 +19,15 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-kafka:
-  topic:
-    emission-reported: emission-topic
-    credit-issued: credit-issued-topic
-    verification-completed: EMISSION_VERIFIED
+    consumer:
+      group-id: audit-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: java.util.Map
 
 eureka:
   client:
