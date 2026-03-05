@@ -79,19 +79,19 @@ const Marketplace = ({ user }) => {
     };
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ margin: 0, color: '#1e293b' }}>Carbon Credit Marketplace</h2>
-                <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-full">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 m-0">Carbon Credit Marketplace</h2>
+                <div className="flex gap-3">
                     <button
                         onClick={handleAddBalance}
-                        style={{ padding: '8px 16px', backgroundColor: '#1565c0', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors border-none cursor-pointer flex items-center gap-2"
                     >
                         💰 Add Funds
                     </button>
                     <button
                         onClick={fetchListings}
-                        style={{ padding: '8px 16px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors border-none cursor-pointer flex items-center gap-2"
                     >
                         🔄 Refresh
                     </button>
@@ -99,66 +99,49 @@ const Marketplace = ({ user }) => {
             </div>
 
             {error && (
-                <div style={{ padding: '10px 16px', marginBottom: '1rem', borderRadius: '8px', backgroundColor: '#fdecea', color: '#c62828', border: '1px solid #ffcdd2' }}>
+                <div className="px-4 py-3 mb-6 rounded-lg bg-red-50 text-red-700 border border-red-200 flex items-center gap-2">
                     ⚠️ {error}
                 </div>
             )}
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Loading active listings...</div>
+                <div className="text-center p-12 text-gray-500 animate-pulse">Loading active listings...</div>
             ) : listings.length === 0 && !error ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b', backgroundColor: 'white', borderRadius: '16px' }}>
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛒</div>
-                    <p>No active listings found in the marketplace.</p>
+                <div className="text-center p-12 text-gray-500 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col items-center justify-center">
+                    <div className="text-5xl mb-4 opacity-50">🛒</div>
+                    <p className="text-lg font-medium">No active listings found in the marketplace.</p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {listings.map(listing => {
                         // Don't allow buying your own credits (UI fallback)
                         const isOwnListing = Number(listing.sellerId) === Number(user?.organizationId) || Number(listing.sellerId) === Number(user?.id);
 
                         return (
-                            <div key={listing.id} style={{
-                                backgroundColor: 'white',
-                                borderRadius: '16px',
-                                padding: '1.5rem',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '1rem',
-                                border: '1px solid #e2e8f0'
-                            }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <div>
-                                        <div style={{ fontWeight: '700', fontSize: '1.25rem', color: '#1e293b' }}>
+                            <div key={listing.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col gap-4 hover:shadow-md transition-shadow">
+                                <div className="flex justify-between items-start gap-4">
+                                    <div className="min-w-0">
+                                        <div className="font-bold text-xl text-gray-900 mb-1 truncate">
                                             Credit #{listing.creditId}
                                         </div>
-                                        <div style={{ color: '#64748b', fontSize: '0.875rem' }}>Listing #{listing.id}</div>
+                                        <div className="text-gray-500 text-sm truncate">Listing #{listing.id}</div>
                                     </div>
-                                    <div style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                                        ${listing.pricePerUnit} <span style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/ tCO₂e</span>
+                                    <div className="shrink-0 bg-green-50 text-green-700 px-3 py-1 rounded-full font-bold text-lg whitespace-nowrap self-start">
+                                        ${listing.pricePerUnit} <span className="text-xs font-normal">/ tCO₂e</span>
                                     </div>
                                 </div>
 
-                                <div style={{ fontSize: '0.9rem', color: '#475569', backgroundColor: '#f8fafc', padding: '0.75rem', borderRadius: '8px' }}>
-                                    <strong>Seller ID:</strong> {listing.sellerId}
+                                <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100 break-all">
+                                    <strong className="text-gray-900">Seller ID:</strong> {listing.sellerId}
                                 </div>
 
                                 <button
                                     onClick={() => handleBuy(listing.id, listing.pricePerUnit)}
                                     disabled={buyLoading === listing.id || isOwnListing}
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        backgroundColor: isOwnListing ? '#cbd5e1' : '#1565c0',
-                                        color: isOwnListing ? '#64748b' : 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: (buyLoading === listing.id || isOwnListing) ? 'not-allowed' : 'pointer',
-                                        fontWeight: '600',
-                                        marginTop: 'auto',
-                                        transition: 'background-color 0.2s'
-                                    }}
+                                    className={`w-full p-3 rounded-lg font-bold transition-colors mt-auto border-none select-none flex items-center justify-center ${isOwnListing
+                                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                            : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer active:scale-[0.98]'
+                                        } ${buyLoading === listing.id ? 'opacity-70 cursor-wait' : ''}`}
                                 >
                                     {isOwnListing
                                         ? "Your Listing"

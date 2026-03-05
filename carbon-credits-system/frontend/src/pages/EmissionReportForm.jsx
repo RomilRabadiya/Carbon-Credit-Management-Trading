@@ -58,30 +58,31 @@ const EmissionReportForm = ({ currentUser }) => {
     };
 
     return (
-        <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff' }}>
-            <h2>Submit Emission Report</h2>
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-2xl mx-auto w-full">
+            <h2 className="text-2xl font-bold text-gray-900 m-0 mb-6">Submit Emission Report</h2>
 
-            <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e2f0d9', borderRadius: '4px' }}>
-                <strong>User ID:</strong> {currentUser?.id || 'Not Set'}
+            <div className="mb-6 px-4 py-3 bg-green-50 text-green-800 border border-green-200 rounded-lg text-sm flex items-center gap-2">
+                <strong className="font-semibold">User ID:</strong> {currentUser?.id || 'Not Set'}
             </div>
 
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px' }}>Project ID:</label>
+            <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Project ID</label>
                     <input
                         type="number"
                         value={projectId}
                         onChange={(e) => setProjectId(e.target.value)}
-                        style={{ width: '100%', padding: '8px' }}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
+                        placeholder="e.g., 101"
                     />
                 </div>
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px' }}>Project Type:</label>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Project Type</label>
                     <select
                         value={projectType}
                         onChange={(e) => setProjectType(e.target.value)}
-                        style={{ width: '100%', padding: '8px' }}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
                     >
                         <option value="REFORESTATION">Reforestation</option>
                         <option value="METHANE_CAPTURE">Methane Capture</option>
@@ -89,80 +90,81 @@ const EmissionReportForm = ({ currentUser }) => {
                 </div>
 
                 {projectType === 'REFORESTATION' && (
-                    <div style={{ marginBottom: '15px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px' }}>Area (Hectares):</label>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Area (Hectares) <span className="text-red-500">*</span></label>
                         <input
                             type="number"
                             step="0.01"
                             value={areaHectares}
                             onChange={(e) => setAreaHectares(e.target.value)}
                             required
-                            style={{ width: '100%', padding: '8px' }}
+                            placeholder="Amount in hectares"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
                         />
                     </div>
                 )}
 
                 {projectType === 'METHANE_CAPTURE' && (
-                    <div style={{ marginBottom: '15px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px' }}>Volume (M3):</label>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Volume (M³) <span className="text-red-500">*</span></label>
                         <input
                             type="number"
                             step="0.01"
                             value={volumeM3}
                             onChange={(e) => setVolumeM3(e.target.value)}
                             required
-                            style={{ width: '100%', padding: '8px' }}
+                            placeholder="Volume captured in Cubic Meters"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
                         />
                     </div>
                 )}
 
-                <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px' }}>Monitoring Evidence URL:</label>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Monitoring Evidence URL</label>
                     <input
                         type="url"
                         value={evidenceUrl}
                         onChange={(e) => setEvidenceUrl(e.target.value)}
-                        style={{ width: '100%', padding: '8px' }}
+                        placeholder="https://..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
                     />
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                    <div style={{ flex: 1 }}>
-                        <label style={{ display: 'block', marginBottom: '5px' }}>Latitude:</label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
                         <input
                             type="number"
                             step="0.000001"
                             value={latitude}
                             onChange={(e) => setLatitude(e.target.value)}
-                            style={{ width: '100%', padding: '8px' }}
+                            placeholder="e.g., 34.0522"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
                         />
                     </div>
-                    <div style={{ flex: 1 }}>
-                        <label style={{ display: 'block', marginBottom: '5px' }}>Longitude:</label>
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
                         <input
                             type="number"
                             step="0.000001"
                             value={longitude}
                             onChange={(e) => setLongitude(e.target.value)}
-                            style={{ width: '100%', padding: '8px' }}
+                            placeholder="e.g., -118.2437"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
                         />
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                        padding: '10px 15px',
-                        backgroundColor: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: loading ? 'not-allowed' : 'pointer'
-                    }}
-                >
-                    {loading ? 'Submitting...' : 'Submit Report'}
-                </button>
+                <div className="pt-2">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-3 px-4 rounded-xl text-white font-semibold transition-all shadow-sm ${loading ? 'bg-green-500/70 cursor-wait' : 'bg-green-600 hover:bg-green-700 cursor-pointer active:scale-[0.99] hover:shadow-md'
+                            }`}
+                    >
+                        {loading ? 'Submitting...' : 'Submit Report'}
+                    </button>
+                </div>
             </form>
         </div>
     );

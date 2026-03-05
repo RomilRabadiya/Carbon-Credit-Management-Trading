@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Leaf, Mail, Lock, LogIn, User as UserIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import './LoginPage.css';
+
 
 const LoginPage = () => {
     const [isSignUp, setIsSignUp] = useState(false);
@@ -60,29 +60,32 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="login-container">
-            <div className="login-card">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
 
                 {/* Header Section */}
-                <div className="login-header">
-                    <div className="logo-container">
-                        <Leaf className="logo-icon" size={32} />
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-50 text-green-600 mb-4">
+                        <Leaf size={32} />
                     </div>
-                    <h1 className="login-title">Carbon Credit <br /> Management System</h1>
-                    <p className="login-subtitle">{isSignUp ? 'Create a new account' : 'Login to continue'}</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Carbon Credit <br /> Management System</h1>
+                    <p className="text-gray-500">{isSignUp ? 'Create a new account' : 'Login to continue'}</p>
                 </div>
 
                 {/* Form Section */}
-                <form onSubmit={handleAuth} className="login-form">
+                <form onSubmit={handleAuth} className="space-y-5">
 
                     {isSignUp && (
-                        <div className="form-group">
-                            <label htmlFor="name">Full Name</label>
-                            <div className="input-wrapper">
-                                <UserIcon className="input-icon" size={18} />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="name">Full Name</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <UserIcon className="h-5 w-5 text-gray-400" />
+                                </div>
                                 <input
                                     id="name"
                                     type="text"
+                                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors outline-none"
                                     placeholder="Jane Doe"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
@@ -93,13 +96,16 @@ const LoginPage = () => {
                         </div>
                     )}
 
-                    <div className="form-group">
-                        <label htmlFor="email">Email</label>
-                        <div className="input-wrapper">
-                            <Mail className="input-icon" size={18} />
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">Email</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Mail className="h-5 w-5 text-gray-400" />
+                            </div>
                             <input
                                 id="email"
                                 type="email"
+                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors outline-none"
                                 placeholder="you@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -109,13 +115,16 @@ const LoginPage = () => {
                         </div>
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <div className="input-wrapper">
-                            <Lock className="input-icon" size={18} />
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">Password</label>
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Lock className="h-5 w-5 text-gray-400" />
+                            </div>
                             <input
                                 id="password"
                                 type="password"
+                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors outline-none"
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -125,32 +134,46 @@ const LoginPage = () => {
                         </div>
                     </div>
 
-                    <div className="form-options">
-                        <label className="remember-me">
-                            <input type="checkbox" disabled={loading} />
-                            <span>Remember me</span>
-                        </label>
-                        {!isSignUp && <a href="#" className="forgot-password">Forgot Password?</a>}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <input
+                                id="remember-me"
+                                name="remember-me"
+                                type="checkbox"
+                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded cursor-pointer"
+                                disabled={loading}
+                            />
+                            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 cursor-pointer">
+                                Remember me
+                            </label>
+                        </div>
+                        {!isSignUp && (
+                            <div className="text-sm">
+                                <a href="#" className="font-medium text-green-600 hover:text-green-500 transition-colors">
+                                    Forgot your password?
+                                </a>
+                            </div>
+                        )}
                     </div>
 
-                    <button type="submit" className="btn-primary" disabled={loading}>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
                         <LogIn size={18} />
                         {loading ? (isSignUp ? 'Creating account...' : 'Signing in...') : (isSignUp ? 'Sign Up' : 'Sign In')}
                     </button>
                 </form>
 
-                <div className="toggle-mode" style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem' }}>
-                    <span style={{ color: 'var(--eco-text-secondary)' }}>
+                <div className="mt-6 text-center text-sm">
+                    <span className="text-gray-500">
                         {isSignUp ? 'Already have an account?' : "Don't have an account?"}
                     </span>
                     <button
                         type="button"
-                        onClick={() => {
-                            setIsSignUp(!isSignUp);
-                            setErrorMsg(null);
-                            setSuccessMsg(null);
-                        }}
-                        style={{ background: 'none', border: 'none', color: 'var(--eco-primary)', fontWeight: '600', cursor: 'pointer', marginLeft: '0.5rem' }}
+                        onClick={() => setIsSignUp(!isSignUp)}
+                        className="ml-1 font-medium text-green-600 hover:text-green-500 bg-transparent border-none cursor-pointer p-0"
                     >
                         {isSignUp ? 'Sign In' : 'Sign Up'}
                     </button>

@@ -29,37 +29,23 @@ const HomePage = () => {
     ].filter(item => item.show);
 
     return (
-        <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-            <h1 style={{ marginTop: 0 }}>Welcome, {user?.name || user?.email}! 👋</h1>
-            <p style={{ color: '#64748b', lineHeight: '1.7', fontSize: '1.1rem' }}>
-                You're logged in as <strong style={{ color: '#2e7d32' }}>{userRole || 'USER'}</strong>.
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome, {user?.name || user?.email}! 👋</h1>
+            <p className="text-gray-600 text-lg mb-8">
+                You're logged in as <strong className="text-green-700">{userRole || 'USER'}</strong>.
                 {user?.organization ? ` Your organization is ${user.organization.name}.` : ' You have no organization linked yet.'}
             </p>
 
-            <h3 style={{ marginTop: '2.5rem', marginBottom: '1.5rem', color: '#1e293b' }}>Quick Actions</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            <h3 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {dashboardCards.map(item => (
                     <div
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        style={{
-                            padding: '1.5rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0',
-                            borderRadius: '12px', cursor: 'pointer', textAlign: 'left',
-                            transition: 'all 0.2s ease', display: 'flex', flexDirection: 'column', gap: '0.5rem'
-                        }}
-                        onMouseOver={e => {
-                            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
-                            e.currentTarget.style.translate = '0 -4px';
-                            e.currentTarget.style.borderColor = '#bbf7d0';
-                        }}
-                        onMouseOut={e => {
-                            e.currentTarget.style.boxShadow = 'none';
-                            e.currentTarget.style.translate = '0 0';
-                            e.currentTarget.style.borderColor = '#e2e8f0';
-                        }}
+                        className="p-6 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-white hover:shadow-lg hover:-translate-y-1 hover:border-green-200 transition-all duration-300 flex flex-col gap-2 group"
                     >
-                        <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0f172a' }}>{item.label}</h3>
-                        <p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5' }}>{item.desc}</p>
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors">{item.label}</h3>
+                        <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
                     </div>
                 ))}
             </div>

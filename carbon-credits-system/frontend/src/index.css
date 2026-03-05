@@ -1,53 +1,28 @@
+@import "tailwindcss";
+
 :root {
-  --eco-primary: #2e7d32;
-  --eco-primary-hover: #1b5e20;
-  --eco-primary-light: #e8f5e9;
-  --eco-bg: #f1f8f5;
-  --eco-surface: #ffffff;
-  --eco-text-primary: #1e293b;
-  --eco-text-secondary: #64748b;
-  --eco-border: #e2e8f0;
-  --eco-focus-ring: rgba(46, 125, 50, 0.3);
-  --error: #ef4444;
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--eco-bg);
-  color: var(--eco-text-primary);
-  line-height: 1.5;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* subtle leaf pattern background or gradient */
-  background-image: radial-gradient(circle at top right, var(--eco-primary-light) 0%, transparent 40%),
-                    radial-gradient(circle at bottom left, var(--eco-primary-light) 0%, transparent 40%);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-#root {
-  width: 100%;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--eco-text-primary);
-  font-weight: 600;
-}
-
-a {
-  color: var(--eco-primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-a:hover {
-  color: var(--eco-primary-hover);
-  text-decoration: underline;
+input,
+select,
+textarea {
+  color: #171717;
+  background-color: #ffffff;
 }

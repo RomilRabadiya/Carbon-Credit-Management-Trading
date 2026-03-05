@@ -91,80 +91,69 @@ const CreditsPage = ({ user }) => {
     };
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ margin: 0, color: '#1e293b' }}>My Carbon Credits</h2>
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 min-h-full">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 m-0">My Carbon Credits</h2>
                 <button
                     onClick={fetchCredits}
-                    style={{ padding: '8px 16px', backgroundColor: '#2e7d32', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors border-none cursor-pointer flex items-center gap-2 shadow-sm"
                 >
                     🔄 Refresh
                 </button>
             </div>
 
             {error && (
-                <div style={{ padding: '10px 16px', marginBottom: '1rem', borderRadius: '8px', backgroundColor: '#fdecea', color: '#c62828', border: '1px solid #ffcdd2' }}>
+                <div className="px-4 py-3 mb-6 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center shadow-sm">
                     ⚠️ {error}
                 </div>
             )}
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Loading credits...</div>
+                <div className="text-center p-12 text-gray-500 animate-pulse">Loading credits...</div>
             ) : credits.length === 0 && !error ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b', backgroundColor: 'white', borderRadius: '16px' }}>
-                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌿</div>
-                    <p>No credits found for your organization.</p>
-                    <p style={{ fontSize: '0.875rem' }}>Credits are issued after a verification is approved.</p>
+                <div className="text-center p-12 text-gray-500 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col items-center justify-center">
+                    <div className="text-5xl mb-4 opacity-50">🌿</div>
+                    <p className="text-lg font-medium mb-1">No credits found for your organization.</p>
+                    <p className="text-sm text-gray-400">Credits are issued after a verification is approved.</p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gap: '1rem' }}>
+                <div className="space-y-4">
                     {credits.map(credit => (
-                        <div key={credit.id} style={{
-                            backgroundColor: 'white',
-                            borderRadius: '12px',
-                            padding: '1.25rem 1.5rem',
-                            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '1rem'
-                        }}>
-                            <div>
-                                <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '4px' }}>
-                                    Credit #{credit.id} — <span style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#64748b' }}>{credit.serialNumber || 'N/A'}</span>
+                        <div key={credit.id} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex justify-between items-center flex-wrap gap-4 hover:shadow-md transition-shadow">
+                            <div className="space-y-1">
+                                <div className="font-bold text-gray-900 text-lg flex items-center gap-2">
+                                    Credit #{credit.id} <span className="text-gray-300 font-normal">—</span> <span className="font-mono text-sm text-gray-500 bg-gray-50 px-2 py-0.5 rounded">{credit.serialNumber || 'N/A'}</span>
                                 </div>
-                                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                                    Amount: <strong>{credit.amount}</strong> tCO₂e &nbsp;|&nbsp;
-                                    Project: <strong>{credit.projectType || 'N/A'}</strong>
+                                <div className="text-sm text-gray-500">
+                                    Amount: <strong className="text-gray-700">{credit.amount}</strong> tCO₂e
+                                    <span className="mx-2 text-gray-300">|</span>
+                                    Project: <strong className="text-gray-700">{credit.projectType || 'N/A'}</strong>
                                 </div>
-                                <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
-                                    Issued: {credit.issuedAt ? new Date(credit.issuedAt).toLocaleDateString() : 'N/A'} &nbsp;|&nbsp;
+                                <div className="text-xs text-gray-400 mt-2">
+                                    Issued: {credit.issuedAt ? new Date(credit.issuedAt).toLocaleDateString() : 'N/A'}
+                                    <span className="mx-2 text-gray-300">|</span>
                                     Expires: {credit.expiryDate ? new Date(credit.expiryDate).toLocaleDateString() : 'N/A'}
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <span style={{
-                                    padding: '4px 12px',
-                                    borderRadius: '20px',
-                                    fontSize: '0.8rem',
-                                    fontWeight: '600',
-                                    color: 'white',
-                                    backgroundColor: statusColors[credit.status] || '#607d8b'
-                                }}>
+                            <div className="flex items-center gap-4 self-start sm:self-center">
+                                <span className={`px-3 py-1 rounded-full text-sm font-bold text-white shadow-sm ${credit.status === 'ACTIVE' ? 'bg-green-600' :
+                                        credit.status === 'LISTED' ? 'bg-blue-600' :
+                                            credit.status === 'SOLD' ? 'bg-purple-600' :
+                                                credit.status === 'RETIRED' ? 'bg-red-600' : 'bg-gray-500'
+                                    }`}>
                                     {credit.status}
                                 </span>
                                 {credit.status === 'ACTIVE' && (
-                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                    <div className="flex gap-2">
                                         <button
                                             onClick={() => setListModal(credit.id)}
-                                            style={{ padding: '6px 14px', backgroundColor: '#1565c0', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
+                                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg cursor-pointer text-sm font-medium shadow-sm transition-colors"
                                         >
                                             List for Sale
                                         </button>
                                         <button
                                             onClick={() => setRetireModal(credit.id)}
-                                            style={{ padding: '6px 14px', backgroundColor: '#c62828', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem' }}
+                                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white border-none rounded-lg cursor-pointer text-sm font-medium shadow-sm transition-colors"
                                         >
                                             Retire
                                         </button>
@@ -178,21 +167,43 @@ const CreditsPage = ({ user }) => {
 
             {/* Retire Modal */}
             {retireModal && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
-                    <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '16px', width: '100%', maxWidth: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ marginTop: 0 }}>Retire Credit #{retireModal}</h3>
-                        <p style={{ fontSize: '0.875rem', color: '#64748b' }}>This action is permanent and cannot be undone.</p>
-                        <div style={{ marginBottom: '12px' }}>
-                            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Beneficiary</label>
-                            <input type="text" value={beneficiary} onChange={e => setBeneficiary(e.target.value)} placeholder="e.g. GreenFuture NGO" style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
+                        <h3 className="text-xl font-bold text-gray-900 mb-1">Retire Credit #{retireModal}</h3>
+                        <p className="text-gray-500 text-sm mb-6">This action is permanent and cannot be undone.</p>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Beneficiary</label>
+                            <input
+                                type="text"
+                                value={beneficiary}
+                                onChange={e => setBeneficiary(e.target.value)}
+                                placeholder="e.g. GreenFuture NGO"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-shadow"
+                            />
                         </div>
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Reason</label>
-                            <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="e.g. Offsetting 2024 emissions" rows={3} style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0', resize: 'none' }} />
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                            <textarea
+                                value={reason}
+                                onChange={e => setReason(e.target.value)}
+                                placeholder="e.g. Offsetting 2024 emissions"
+                                rows={3}
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none resize-none transition-shadow"
+                            />
                         </div>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button onClick={() => setRetireModal(null)} style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', backgroundColor: 'white' }}>Cancel</button>
-                            <button onClick={handleRetire} disabled={retireLoading} style={{ flex: 1, padding: '10px', backgroundColor: '#c62828', color: 'white', border: 'none', borderRadius: '8px', cursor: retireLoading ? 'not-allowed' : 'pointer', fontWeight: '600' }}>
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={() => setRetireModal(null)}
+                                className="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium cursor-pointer transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleRetire}
+                                disabled={retireLoading}
+                                className={`flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white border-none rounded-xl cursor-pointer font-medium shadow-sm flex items-center justify-center transition-colors ${retireLoading ? 'opacity-70 cursor-wait' : ''}`}
+                            >
                                 {retireLoading ? 'Retiring...' : 'Confirm Retire'}
                             </button>
                         </div>
@@ -202,19 +213,39 @@ const CreditsPage = ({ user }) => {
 
             {/* List for Sale Modal */}
             {listModal && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
-                    <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '16px', width: '100%', maxWidth: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                        <h3 style={{ marginTop: 0 }}>List Credit #{listModal} for Sale</h3>
-                        <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Enter the price per tonne of CO₂e for this credit.</p>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
+                        <h3 className="text-xl font-bold text-gray-900 mb-1">List Credit #{listModal} for Sale</h3>
+                        <p className="text-gray-500 text-sm mb-6">Enter the price per tonne of CO₂e for this credit.</p>
 
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Price ($ USD)</label>
-                            <input type="number" step="0.01" min="0" value={listPrice} onChange={e => setListPrice(e.target.value)} placeholder="e.g. 50.00" style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                        <div className="mb-6 relative">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Price ($ USD)</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={listPrice}
+                                    onChange={e => setListPrice(e.target.value)}
+                                    placeholder="50.00"
+                                    className="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-shadow"
+                                />
+                            </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <button onClick={() => { setListModal(null); setListPrice(''); }} style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', backgroundColor: 'white' }}>Cancel</button>
-                            <button onClick={handleList} disabled={listLoading} style={{ flex: 1, padding: '10px', backgroundColor: '#1565c0', color: 'white', border: 'none', borderRadius: '8px', cursor: listLoading ? 'not-allowed' : 'pointer', fontWeight: '600' }}>
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={() => { setListModal(null); setListPrice(''); }}
+                                className="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium cursor-pointer transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleList}
+                                disabled={listLoading}
+                                className={`flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-xl cursor-pointer font-medium shadow-sm flex items-center justify-center transition-colors ${listLoading ? 'opacity-70 cursor-wait' : ''}`}
+                            >
                                 {listLoading ? 'Listing...' : 'Confirm Listing'}
                             </button>
                         </div>

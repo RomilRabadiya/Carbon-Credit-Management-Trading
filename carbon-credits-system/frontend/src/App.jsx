@@ -64,7 +64,7 @@ function App() {
           <Route path="report" element={<EmissionReportForm currentUser={currentUser} />} />
           <Route path="credits" element={<CreditsPage user={currentUser} />} />
           <Route path="marketplace" element={<Marketplace user={currentUser} />} />
-          <Route path="verifications" element={<VerificationsPage user={currentUser} />} />
+          <Route path="verifications" element={<VerificationsPage user={currentUser} userRole={currentUser?.role} />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Routes>

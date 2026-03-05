@@ -55,14 +55,19 @@ const ProfilePage = () => {
     };
 
     return (
-        <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', maxWidth: '540px', margin: '0 auto' }}>
-            <h2 style={{ marginTop: 0 }}>My Profile</h2>
-            <p style={{ color: '#64748b', marginBottom: '2rem' }}>Update your role and organization details here.</p>
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-xl mx-auto w-full">
+            <h2 className="text-2xl font-bold text-gray-900 m-0 mb-2">My Profile</h2>
+            <p className="text-gray-500 mb-8">Update your role and organization details here.</p>
 
-            <form onSubmit={handleCompleteProfile}>
-                <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Role:</label>
-                    <select value={role} onChange={(e) => setRole(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <form onSubmit={handleCompleteProfile} className="space-y-6">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        required
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
+                    >
                         <option value="">Select Role</option>
                         <option value="USER">User (Standard)</option>
                         <option value="ORGANIZATION">Organization</option>
@@ -71,23 +76,53 @@ const ProfilePage = () => {
                 </div>
 
                 {role === 'ORGANIZATION' && (
-                    <div style={{ marginBottom: '15px', padding: '15px', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
-                        <h3 style={{ marginTop: 0, fontSize: '0.95rem' }}>Organization Details</h3>
-                        <div style={{ marginBottom: '10px' }}>
-                            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem' }}>Organization Name:</label>
-                            <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)} required placeholder="GreenCorp Ltd." style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                    <div className="p-6 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900 m-0 mb-4">Organization Details</h3>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
+                            <input
+                                type="text"
+                                value={orgName}
+                                onChange={e => setOrgName(e.target.value)}
+                                required
+                                placeholder="GreenCorp Ltd."
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
+                            />
                         </div>
-                        <div style={{ marginBottom: '10px' }}>
-                            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem' }}>Address:</label>
-                            <input type="text" value={orgAddress} onChange={e => setOrgAddress(e.target.value)} required placeholder="123 Eco Street" style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <input
+                                type="text"
+                                value={orgAddress}
+                                onChange={e => setOrgAddress(e.target.value)}
+                                required
+                                placeholder="123 Eco Street"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
+                            />
                         </div>
-                        <div style={{ marginBottom: '10px' }}>
-                            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem' }}>Contact Email:</label>
-                            <input type="email" value={orgContactEmail} onChange={e => setOrgContactEmail(e.target.value)} required placeholder="contact@greencorp.com" style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+                            <input
+                                type="email"
+                                value={orgContactEmail}
+                                onChange={e => setOrgContactEmail(e.target.value)}
+                                required
+                                placeholder="contact@greencorp.com"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
+                            />
                         </div>
-                        <div style={{ marginBottom: '10px' }}>
-                            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem' }}>Organization Type:</label>
-                            <select value={orgType} onChange={(e) => setOrgType(e.target.value)} required style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Organization Type</label>
+                            <select
+                                value={orgType}
+                                onChange={(e) => setOrgType(e.target.value)}
+                                required
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-shadow bg-white text-gray-900"
+                            >
                                 <option value="COMPANY">Company</option>
                                 <option value="NGO">NGO</option>
                                 <option value="GOVERNMENT">Government</option>
@@ -97,9 +132,16 @@ const ProfilePage = () => {
                     </div>
                 )}
 
-                <button type="submit" disabled={loading} style={{ padding: '10px 20px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: '600', width: '100%', marginTop: '10px' }}>
-                    {loading ? 'Saving...' : 'Save Profile'}
-                </button>
+                <div className="pt-2">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-3 px-4 rounded-xl text-white font-semibold shadow-sm transition-all ${loading ? 'bg-green-500/70 cursor-wait' : 'bg-green-600 hover:bg-green-700 cursor-pointer active:scale-[0.99] hover:shadow-md'
+                            }`}
+                    >
+                        {loading ? 'Saving...' : 'Save Profile'}
+                    </button>
+                </div>
             </form>
         </div>
     );
