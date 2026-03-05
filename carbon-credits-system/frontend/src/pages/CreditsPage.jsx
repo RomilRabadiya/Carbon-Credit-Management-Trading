@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-
-const API_BASE = 'http://localhost:8080';
-const TRADE_API_BASE = 'http://localhost:8083';
+import { toast } from 'react-toastify';
+import apiClient from '../api/client';
 
 const CreditsPage = ({ user }) => {
     const [credits, setCredits] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [msg, setMsg] = useState(null);
 
     // For retire modal
     const [retireModal, setRetireModal] = useState(null); // creditId being retired
@@ -20,27 +18,15 @@ const CreditsPage = ({ user }) => {
     const [listPrice, setListPrice] = useState('');
     const [listLoading, setListLoading] = useState(false);
 
-    const authHeader = () => ({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-    });
-
     const fetchCredits = async () => {
         setLoading(true);
         setError(null);
         try {
-            // Use /me which reads the X-User-Id header injected by the API Gateway
-            const res = await fetch(`${API_BASE}/api/credits/me`, {
-                headers: authHeader()
-            });
-            if (!res.ok) {
-                const errData = await res.json().catch(() => null);
-                throw new Error(errData?.message || `Failed to load credits (${res.status})`);
-            }
-            const data = await res.json();
-            setCredits(data.credits || data || []);
+            const res = await apiClient.get('/credits/me');
+            setCredits(res.data?.credits || res.data || []);
         } catch (e) {
-            setError(e.message);
+            setError(e.response?.data?.message || e.message || 'Failed to load credits');
+            toast.error('Failed to load credits');
         } finally {
             setLoading(false);
         }
@@ -52,28 +38,23 @@ const CreditsPage = ({ user }) => {
 
     const handleRetire = async () => {
         if (!beneficiary || !reason) {
-            setMsg({ type: 'error', text: 'Beneficiary and reason are required.' });
+            toast.error('Beneficiary and reason are required.');
             return;
         }
         setRetireLoading(true);
-        setMsg(null);
         try {
-            const res = await fetch(`${TRADE_API_BASE}/api/trading/retire/${retireModal}`, {
-                method: 'POST',
-                headers: { ...authHeader(), 'X-User-Id': user?.id?.toString() || "" },
-                body: JSON.stringify({ beneficiary, reason })
-            });
-            if (!res.ok) {
-                const errText = await res.text();
-                throw new Error(errText || `Retire failed (${res.status})`);
-            }
-            setMsg({ type: 'success', text: 'Credit retired successfully!' });
+            await apiClient.post(`/trading/retire/${retireModal}`,
+                { beneficiary, reason },
+                { headers: { 'X-User-Id': user?.id?.toString() || "" } }
+            );
+
+            toast.success('Credit retired successfully!');
             setRetireModal(null);
             setBeneficiary('');
             setReason('');
             fetchCredits();
         } catch (e) {
-            setMsg({ type: 'error', text: e.message });
+            toast.error(e.response?.data?.message || e.message || 'Failed to retire credit');
         } finally {
             setRetireLoading(false);
         }
@@ -81,27 +62,22 @@ const CreditsPage = ({ user }) => {
 
     const handleList = async () => {
         if (!listPrice || isNaN(listPrice) || Number(listPrice) <= 0) {
-            setMsg({ type: 'error', text: 'Please enter a valid positive price.' });
+            toast.error('Please enter a valid positive price.');
             return;
         }
         setListLoading(true);
-        setMsg(null);
         try {
-            const res = await fetch(`${TRADE_API_BASE}/api/trading/list`, {
-                method: 'POST',
-                headers: { ...authHeader(), 'X-User-Id': user?.id?.toString() || "" },
-                body: JSON.stringify({ creditId: listModal, price: Number(listPrice) })
-            });
-            if (!res.ok) {
-                const errData = await res.json().catch(() => null);
-                throw new Error(errData?.message || `Listing failed (${res.status})`);
-            }
-            setMsg({ type: 'success', text: 'Credit successfully listed for sale!' });
+            await apiClient.post('/trading/list',
+                { creditId: listModal, price: Number(listPrice) },
+                { headers: { 'X-User-Id': user?.id?.toString() || "" } }
+            );
+
+            toast.success('Credit successfully listed for sale!');
             setListModal(null);
             setListPrice('');
             fetchCredits();
         } catch (e) {
-            setMsg({ type: 'error', text: e.message });
+            toast.error(e.response?.data?.message || e.message || 'Listing failed');
         } finally {
             setListLoading(false);
         }
@@ -125,12 +101,6 @@ const CreditsPage = ({ user }) => {
                     🔄 Refresh
                 </button>
             </div>
-
-            {msg && (
-                <div style={{ padding: '10px 16px', marginBottom: '1rem', borderRadius: '8px', backgroundColor: msg.type === 'error' ? '#fdecea' : '#e8f5e9', color: msg.type === 'error' ? '#c62828' : '#2e7d32', border: `1px solid ${msg.type === 'error' ? '#ffcdd2' : '#a5d6a7'}` }}>
-                    {msg.text}
-                </div>
-            )}
 
             {error && (
                 <div style={{ padding: '10px 16px', marginBottom: '1rem', borderRadius: '8px', backgroundColor: '#fdecea', color: '#c62828', border: '1px solid #ffcdd2' }}>

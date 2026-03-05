@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Leaf, Mail, Lock, LogIn, User as UserIcon } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import './LoginPage.css';
 
-const LoginPage = ({ onLoginSuccess }) => {
+const LoginPage = () => {
     const [isSignUp, setIsSignUp] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState(null);
-    const [successMsg, setSuccessMsg] = useState(null);
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleAuth = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setErrorMsg(null);
-        setSuccessMsg(null);
 
         try {
             if (isSignUp) {
@@ -30,7 +32,7 @@ const LoginPage = ({ onLoginSuccess }) => {
                     throw new Error('Failed to create account. Email might already be in use.');
                 }
 
-                setSuccessMsg('Account created successfully! Please sign in.');
+                toast.success('Account created successfully! Please sign in.');
                 setIsSignUp(false); // Switch back to sign in
                 setPassword(''); // Clear password field for security
             } else {
@@ -46,15 +48,12 @@ const LoginPage = ({ onLoginSuccess }) => {
                 }
 
                 const data = await res.json();
-
-                // Store token in local storage
-                localStorage.setItem('auth_token', data.token);
-
-                setSuccessMsg('Successfully logged in!');
-                if (onLoginSuccess) onLoginSuccess(data);
+                login(data, data.token); // Use AuthContext to save user globally
+                toast.success('Successfully logged in!');
+                navigate('/'); // Redirect to dashboard
             }
         } catch (err) {
-            setErrorMsg(err.message);
+            toast.error(err.message || 'Authentication failed');
         } finally {
             setLoading(false);
         }
@@ -72,10 +71,6 @@ const LoginPage = ({ onLoginSuccess }) => {
                     <h1 className="login-title">Carbon Credit <br /> Management System</h1>
                     <p className="login-subtitle">{isSignUp ? 'Create a new account' : 'Login to continue'}</p>
                 </div>
-
-                {/* Status Messages */}
-                {errorMsg && <div className="error-message" style={{ color: 'var(--error)', marginBottom: '1rem', fontSize: '0.875rem', textAlign: 'center' }}>{errorMsg}</div>}
-                {successMsg && <div className="success-message" style={{ color: 'var(--eco-primary)', marginBottom: '1rem', fontSize: '0.875rem', textAlign: 'center' }}>{successMsg}</div>}
 
                 {/* Form Section */}
                 <form onSubmit={handleAuth} className="login-form">

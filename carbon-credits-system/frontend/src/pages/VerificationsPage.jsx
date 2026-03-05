@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from 'react';
-
-const API_BASE = 'http://localhost:8080';
+import { toast } from 'react-toastify';
+import apiClient from '../api/client';
 
 const VerificationsPage = ({ user, userRole }) => {
     const [verifications, setVerifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [msg, setMsg] = useState(null);
 
     // For approve/reject modal
     const [actionModal, setActionModal] = useState(null); // { id, action: 'approve'|'reject' }
     const [remarks, setRemarks] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
-
-    const authHeader = () => ({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-    });
 
     const isVerifier = userRole === 'VERIFIER' || userRole === 'ADMIN';
     const isOrg = userRole === 'ORGANIZATION' || userRole === 'ADMIN';
@@ -25,20 +19,16 @@ const VerificationsPage = ({ user, userRole }) => {
         setLoading(true);
         setError(null);
         try {
-            let url = `${API_BASE}/api/verifications`;
+            let url = `/verifications`;
             // Organizations only see their own; verifiers see all
             if (isOrg && !isVerifier && user?.organizationId) {
-                url = `${API_BASE}/api/verifications/organization/${user.organizationId}`;
+                url = `/verifications/organization/${user.organizationId}`;
             }
-            const res = await fetch(url, { headers: authHeader() });
-            if (!res.ok) {
-                const errText = await res.text();
-                throw new Error(errText || `Failed to load (${res.status})`);
-            }
-            const data = await res.json();
-            setVerifications(Array.isArray(data) ? data : []);
+            const res = await apiClient.get(url);
+            setVerifications(Array.isArray(res.data) ? res.data : []);
         } catch (e) {
-            setError(e.message);
+            setError(e.response?.data?.message || e.message || 'Failed to load verifications');
+            toast.error('Failed to load verifications');
         } finally {
             setLoading(false);
         }
@@ -49,24 +39,18 @@ const VerificationsPage = ({ user, userRole }) => {
     const handleAction = async () => {
         const { id, action } = actionModal;
         setActionLoading(true);
-        setMsg(null);
         try {
-            const method = action === 'approve' ? 'PUT' : 'POST';
-            const res = await fetch(`${API_BASE}/api/verifications/${id}/${action}`, {
-                method,
-                headers: authHeader(),
-                body: JSON.stringify({ remarks: remarks || (action === 'approve' ? 'Approved' : 'Rejected') })
+            const method = action === 'approve' ? 'put' : 'post';
+            await apiClient[method](`/verifications/${id}/${action}`, {
+                remarks: remarks || (action === 'approve' ? 'Approved' : 'Rejected')
             });
-            if (!res.ok) {
-                const errText = await res.text();
-                throw new Error(errText || `Action failed (${res.status})`);
-            }
-            setMsg({ type: 'success', text: `Verification #${id} ${action}d successfully!` });
+
+            toast.success(`Verification #${id} ${action}d successfully!`);
             setActionModal(null);
             setRemarks('');
             fetchVerifications();
         } catch (e) {
-            setMsg({ type: 'error', text: e.message });
+            toast.error(e.response?.data?.message || e.message || `Action failed`);
         } finally {
             setActionLoading(false);
         }
@@ -95,12 +79,6 @@ const VerificationsPage = ({ user, userRole }) => {
             {!isVerifier && !isOrg && (
                 <div style={{ padding: '12px 16px', backgroundColor: '#fff3e0', border: '1px solid #ffe0b2', borderRadius: '8px', marginBottom: '1rem', color: '#e65100' }}>
                     ⚠️ You need an ORGANIZATION or VERIFIER role to access verifications.
-                </div>
-            )}
-
-            {msg && (
-                <div style={{ padding: '10px 16px', marginBottom: '1rem', borderRadius: '8px', backgroundColor: msg.type === 'error' ? '#fdecea' : '#e8f5e9', color: msg.type === 'error' ? '#c62828' : '#2e7d32', border: `1px solid ${msg.type === 'error' ? '#ffcdd2' : '#a5d6a7'}` }}>
-                    {msg.text}
                 </div>
             )}
 

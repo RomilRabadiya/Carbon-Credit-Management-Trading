@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+import apiClient from '../api/client';
 
 const EmissionReportForm = ({ currentUser }) => {
     const [projectId, setProjectId] = useState('');
@@ -10,18 +12,14 @@ const EmissionReportForm = ({ currentUser }) => {
     const [longitude, setLongitude] = useState('');
 
     const [loading, setLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState(null);
-    const [successMsg, setSuccessMsg] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setErrorMsg(null);
-        setSuccessMsg(null);
 
         // Basic Validation
         if (!currentUser?.id) {
-            setErrorMsg("Your profile does not have a User ID! Please login again.");
+            toast.error("Your profile does not have a User ID! Please login again.");
             setLoading(false);
             return;
         }
@@ -39,24 +37,10 @@ const EmissionReportForm = ({ currentUser }) => {
                 longitude: longitude ? parseFloat(longitude) : null
             };
 
-            // Call API Gateway 
-            const authToken = localStorage.getItem('auth_token');
-            const response = await fetch('http://localhost:8080/api/emissions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': authToken ? `Bearer ${authToken}` : ''
-                },
-                body: JSON.stringify(payload)
-            });
+            const response = await apiClient.post('/emissions', payload);
+            const data = response.data;
 
-            if (!response.ok) {
-                const errData = await response.json().catch(() => null);
-                throw new Error(errData?.message || 'Failed to submit report. Please check the backend.');
-            }
-
-            const data = await response.json();
-            setSuccessMsg(`Report Submitted Successfully! Report ID: ${data.id}, Status: ${data.status}`);
+            toast.success(`Report Submitted Successfully! Report ID: ${data.id}, Status: ${data.status}`);
 
             // Clear form
             setProjectId('');
@@ -67,7 +51,7 @@ const EmissionReportForm = ({ currentUser }) => {
             setLongitude('');
 
         } catch (error) {
-            setErrorMsg(error.message);
+            toast.error(error.response?.data?.message || error.message || 'Failed to submit report.');
         } finally {
             setLoading(false);
         }
@@ -80,9 +64,6 @@ const EmissionReportForm = ({ currentUser }) => {
             <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e2f0d9', borderRadius: '4px' }}>
                 <strong>User ID:</strong> {currentUser?.id || 'Not Set'}
             </div>
-
-            {errorMsg && <div style={{ color: 'red', marginBottom: '15px', padding: '10px', border: '1px solid red', backgroundColor: '#ffe6e6' }}>{errorMsg}</div>}
-            {successMsg && <div style={{ color: 'green', marginBottom: '15px', padding: '10px', border: '1px solid green', backgroundColor: '#e6ffe6' }}>{successMsg}</div>}
 
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '15px' }}>

@@ -1,35 +1,25 @@
 import React, { useState, useEffect } from 'react';
-
-const TRADE_API_BASE = 'http://localhost:8083';
+import { toast } from 'react-toastify';
+import apiClient from '../api/client';
 
 const Marketplace = ({ user }) => {
     const [listings, setListings] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [buyLoading, setBuyLoading] = useState(null); // id of listing being bought
-    const [msg, setMsg] = useState(null);
-
-    const authHeader = () => ({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,
-        'X-User-Id': user?.id?.toString() || ""
-    });
+    const [buyLoading, setBuyLoading] = useState(null);
 
     const fetchListings = async () => {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${TRADE_API_BASE}/api/trading/listings`, {
-                headers: authHeader()
+            // Use the API Gateway route (port 8080 captures /api/trading/**)
+            const res = await apiClient.get('/trading/listings', {
+                headers: { 'X-User-Id': user?.id?.toString() || "" }
             });
-            if (!res.ok) {
-                const errData = await res.json().catch(() => null);
-                throw new Error(errData?.message || `Failed to load listings (${res.status})`);
-            }
-            const data = await res.json();
-            setListings(data);
+            setListings(res.data);
         } catch (e) {
-            setError(e.message);
+            setError(e.response?.data?.message || e.message || 'Failed to load listings');
+            toast.error('Failed to load listings');
         } finally {
             setLoading(false);
         }
@@ -41,30 +31,22 @@ const Marketplace = ({ user }) => {
 
     const handleBuy = async (listingId, price) => {
         if (!user || (!user.organizationId && !user.id)) {
-            setMsg({ type: 'error', text: 'You must be logged in and part of an organization to buy credits.' });
+            toast.error('You must be logged in and part of an organization to buy credits.');
             return;
         }
 
         if (window.confirm(`Are you sure you want to buy this credit for $${price}?`)) {
             setBuyLoading(listingId);
-            setMsg(null);
             try {
-                const res = await fetch(`${TRADE_API_BASE}/api/trading/buy`, {
-                    method: 'POST',
-                    headers: authHeader(),
-                    body: JSON.stringify({ listingId: listingId.toString() })
-                });
+                const res = await apiClient.post('/trading/buy',
+                    { listingId: listingId.toString() },
+                    { headers: { 'X-User-Id': user?.id?.toString() || "" } }
+                );
 
-                if (!res.ok) {
-                    const errData = await res.json().catch(() => null);
-                    throw new Error(errData?.message || errData?.error || `Purchase failed (${res.status})`);
-                }
-
-                setMsg({ type: 'success', text: `Successfully purchased credit from listing #${listingId}!` });
-                // Refresh the listings
-                fetchListings();
+                toast.success(`Successfully purchased credit from listing #${listingId}!`);
+                fetchListings(); // Refresh the listings
             } catch (e) {
-                setMsg({ type: 'error', text: e.message });
+                toast.error(e.response?.data?.message || e.response?.data?.error || e.message || `Purchase failed`);
             } finally {
                 setBuyLoading(null);
             }
@@ -76,35 +58,23 @@ const Marketplace = ({ user }) => {
         if (!amountStr) return;
         const amount = parseFloat(amountStr);
         if (isNaN(amount) || amount <= 0) {
-            alert("Invalid amount.");
+            toast.warning("Invalid amount.");
             return;
         }
 
         const userId = user?.id;
         if (!userId) {
-            alert("User ID missing. Please log in.");
+            toast.error("User ID missing. Please log in.");
             return;
         }
 
         try {
-            const res = await fetch(`http://localhost:8080/api/users/${userId}/balance/add`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-                },
-                body: JSON.stringify(amount)
+            await apiClient.post(`/users/${userId}/balance/add`, amount, {
+                headers: { 'Content-Type': 'application/json' }
             });
-
-            if (!res.ok) {
-                const errData = await res.json().catch(() => null);
-                throw new Error(errData?.message || `Failed to add balance (${res.status})`);
-            }
-
-            alert(`Successfully added $${amount} to your wallet!`);
-            // Refresh to ensure any UI depending on balance might update (if any)
+            toast.success(`Successfully added $${amount} to your wallet!`);
         } catch (e) {
-            alert(`Error: ${e.message}`);
+            toast.error(e.response?.data?.message || `Failed to add balance`);
         }
     };
 
@@ -127,12 +97,6 @@ const Marketplace = ({ user }) => {
                     </button>
                 </div>
             </div>
-
-            {msg && (
-                <div style={{ padding: '10px 16px', marginBottom: '1rem', borderRadius: '8px', backgroundColor: msg.type === 'error' ? '#fdecea' : '#e8f5e9', color: msg.type === 'error' ? '#c62828' : '#2e7d32', border: `1px solid ${msg.type === 'error' ? '#ffcdd2' : '#a5d6a7'}` }}>
-                    {msg.text}
-                </div>
-            )}
 
             {error && (
                 <div style={{ padding: '10px 16px', marginBottom: '1rem', borderRadius: '8px', backgroundColor: '#fdecea', color: '#c62828', border: '1px solid #ffcdd2' }}>
