@@ -38,6 +38,10 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/api/trading/**
+        - id: audit-ledger-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/audit/**
 
 eureka:
   client:
