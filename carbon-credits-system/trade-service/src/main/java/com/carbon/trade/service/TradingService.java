@@ -33,6 +33,7 @@ public class TradingService {
     private final UserServiceClient userServiceClient;
     private final TradeDAO tradeDAO;
     private final ListingRepository listingRepository;
+    private final TradingEventPublisher eventPublisher;
 
     @Transactional
     public Listing createListing(Long creditId, Long sellerId, BigDecimal price) {
@@ -145,6 +146,19 @@ public class TradingService {
         Trade savedTrade = tradeDAO.save(trade);
         log.info("Trade recorded. ID: {}", savedTrade.getId());
 
+        // 7. Publish Trade Event
+        CarbonCreditDTO credit = coreServiceClient.getCreditById(creditId);
+        eventPublisher.publishTradeCompleted(com.carbon.trade.event.TradeCompletedEvent.builder()
+                .tradeId(savedTrade.getId())
+                .creditId(creditId)
+                .sellerId(sellerId)
+                .buyerId(buyerId)
+                .pricePerUnit(price)
+                .creditAmount(BigDecimal.valueOf(credit.getAmount()))
+                .timestamp(LocalDateTime.now())
+                .eventType("TRADE_COMPLETED")
+                .build());
+
         return new TransactionResponse("Credit purchased successfully", savedTrade.getId());
     }
 
@@ -187,6 +201,17 @@ public class TradingService {
                 .build();
 
         tradeDAO.save(trade);
+
+        // 5. Publish Retirement Event
+        eventPublisher.publishCreditRetired(com.carbon.trade.event.CreditRetiredEvent.builder()
+                .creditId(creditId)
+                .organizationId(organizationId)
+                .creditAmount(BigDecimal.valueOf(credit.getAmount()))
+                .beneficiary(request.get("beneficiary"))
+                .reason(request.get("reason"))
+                .timestamp(LocalDateTime.now())
+                .eventType("CREDIT_RETIRED")
+                .build());
 
         return new TransactionResponse("Credit retired successfully", trade.getId());
     }

@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useAuditLedger } from '../hooks/useAuditLedger';
+import { formatDate, formatCurrency } from '../utils/formatters';
 
 const parseJwtRole = (token) => {
     try {
@@ -25,6 +27,7 @@ const HomePage = () => {
         { path: '/credits', label: '🌿 My Credits', show: userRole === 'ORGANIZATION' || userRole === 'ADMIN', desc: 'View and manage your carbon credits' },
         { path: '/marketplace', label: '🛒 Marketplace', show: true, desc: 'Buy and sell carbon credits on the open market' },
         { path: '/verifications', label: '🔍 Verifications', show: userRole === 'VERIFIER' || userRole === 'ORGANIZATION' || userRole === 'ADMIN', desc: 'Verify emission reports' },
+        { path: '/audit-ledger', label: '🏛️ Audit Ledger', show: true, desc: 'View complete immutable transaction history' },
         { path: '/profile', label: '👤 Profile', show: true, desc: 'Update your account details and role' },
     ].filter(item => item.show);
 
@@ -49,6 +52,58 @@ const HomePage = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Recent Transactions Section */}
+            <div className="mt-12 pt-8 border-t border-gray-100">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">Recent Transactions</h3>
+                    <Link to="/audit-ledger" className="text-green-600 hover:text-green-700 font-bold text-sm">
+                        View Full Ledger →
+                    </Link>
+                </div>
+
+                <RecentTransactions user={user} />
+            </div>
+        </div>
+    );
+};
+
+const RecentTransactions = ({ user }) => {
+    const { transactions, loading } = useAuditLedger(user?.id);
+    const recentTxns = transactions?.slice(0, 5) || [];
+
+    if (loading) {
+        return (
+            <div className="space-y-3">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="h-16 bg-gray-50 animate-pulse rounded-xl border border-gray-100"></div>
+                ))}
+            </div>
+        );
+    }
+
+    if (recentTxns.length === 0) {
+        return (
+            <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                <p className="text-gray-500 font-medium">No recent transactions recorded.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-3">
+            {recentTxns.map(tx => (
+                <div key={tx.id} className="flex justify-between items-center p-4 bg-gray-50 hover:bg-white hover:shadow-sm border border-gray-200 rounded-xl transition-all">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{tx.transactionType}</span>
+                        <span className="text-sm font-bold text-gray-900">{formatDate(tx.transactionDate)}</span>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-sm font-bold text-gray-900">{Number(tx.creditAmount).toLocaleString()} Units</p>
+                        <p className="text-xs text-green-700 font-bold">{formatCurrency(tx.totalAmount || (tx.creditAmount * (tx.pricePerUnit || 0)))}</p>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };

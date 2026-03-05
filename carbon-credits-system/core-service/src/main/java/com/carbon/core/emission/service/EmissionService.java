@@ -35,7 +35,7 @@ public class EmissionService {
                 .orElseThrow(() -> new IllegalArgumentException("Emission Report not found: " + id));
     }
 
-    public EmissionReport submitReport(Long userId, ReportRequestDto request) {
+    public EmissionReport submitReport(Long userId, Long orgId, ReportRequestDto request) {
         Long projectId = request.getProjectId();
         if (projectId == null || projectId <= 0) {
             projectId = (long) (Math.random() * 900000) + 100000;
@@ -68,8 +68,7 @@ public class EmissionService {
             VerificationRequest vr = new VerificationRequest();
             vr.setReportId(saved.getId());
             vr.setProjectId(saved.getProjectId());
-            // Use userId as organizationId proxy until user-org mapping is in place
-            vr.setOrganizationId(userId);
+            vr.setOrganizationId(orgId);
             vr.setStatus("PENDING");
             vr.setCreatedAt(java.time.LocalDateTime.now());
             verificationRepository.save(vr);
@@ -83,7 +82,7 @@ public class EmissionService {
                     .reportId(saved.getId())
                     .projectId(saved.getProjectId())
                     .userId(saved.getUserId())
-                    .organizationId(saved.getUserId()) // userId is used as org proxy; listener extracts this
+                    .organizationId(orgId)
                     .carbonAmount(saved.getCalculatedEmission())
                     .unit("TONNE_CO2E")
                     .description("Emission Report for Project " + saved.getProjectId())
